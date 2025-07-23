@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Lương Nhân Viên - Trung Tâm Ngoại Ngữ 68</title>
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tải font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Liên kết Font Awesome để sử dụng các biểu tượng -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Thiết lập font và màu nền chung - Nhất quán với các trang khác */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Màu nền chính */
+            color: #333333; /* Màu chữ mặc định */
+        }
+
+        /* Khu vực nội dung chính - Đồng bộ với StudentInfo.html */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #ffffff;
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Header - Đồng bộ với StudentInfo.html */
+        .header {
+            background-color: #2d3748;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-grow: 1;
+            justify-content: flex-start;
+        }
+
+        .header-logo img {
+            height: 100px;
+            width: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .header-date {
+            font-size: 1rem;
+            color: #a0aec0;
+            white-space: nowrap;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-icons {
+            position: relative;
+        }
+
+        .header-icons svg {
+            width: 24px;
+            height: 24px;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .header-icons svg:hover {
+            color: #ffffff;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #f00;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+            min-width: 18px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        /* Notification Dropdown */
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background-color: #2d3748;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            min-width: 280px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            padding: 0; /* Changed to 0, inner elements will have padding */
+            margin-top: 5px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+
+        .notification-dropdown.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Notification Dropdown Header */
+        .notification-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #4a5568; /* Slightly lighter background for header */
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #667eea;
+        }
+
+        .notification-dropdown-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .notification-dropdown-header button {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .notification-dropdown-header button:hover {
+            color: #ffffff;
+        }
+
+        /* Notification List */
+        .notification-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notification-list li {
+            padding: 10px 15px;
+            color: #e2e8f0;
+            border-bottom: 1px solid #4a5568;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .notification-list li:last-child {
+            border-bottom: none;
+        }
+
+        .notification-list li:hover {
+            background-color: #4a5568;
+        }
+
+        .notification-list li strong {
+            color: #ffffff;
+        }
+
+        .notification-list li .time {
+            display: block;
+            font-size: 0.75rem;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        .notification-dropdown .no-notifications {
+            padding: 10px 15px;
+            color: #a0aec0;
+            text-align: center;
+            font-style: italic;
+            display: none; /* Hidden by default, shown by JS */
+        }
+
+        /* User Info and Dropdown - Đồng bộ với StudentInfo.html */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            cursor: pointer;
+            padding: 5px 0;
+        }
+
+        .user-info img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #4299e1;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .user-details .user-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .user-details .user-title {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background-color: #2d3748;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            min-width: 160px;
+            display: none;
+            flex-direction: column;
+            padding: 10px 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+
+        .user-dropdown.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .user-dropdown button {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            padding: 10px 15px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            font-size: 0.95rem;
+        }
+
+        .user-dropdown button:hover {
+            background-color: #4a5568;
+            color: #ffffff;
+        }
+
+        /* Dashboard Body - Đồng bộ với StudentInfo.html */
+        .dashboard-body {
+            padding: 30px;
+            flex-grow: 1;
+            background-color: #ffffff;
+        }
+
+        .dashboard-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        /* Card styles - Đồng bộ với StudentInfo.html */
+        .card {
+            background-color: #fdfdfd;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 25px;
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 12px;
+        }
+
+        /* Form elements - Đồng bộ với StudentInfo.html */
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555555;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            background-color: #fcfcfc;
+            color: #333333;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1em;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Table styles - Đồng bộ với StudentInfo.html */
+        .table-container {
+            overflow-x: auto;
+            max-height: 65vh; /* Tăng chiều cao tối đa để phù hợp với các trang khác */
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px; /* Tăng min-width để chứa đủ các cột */
+        }
+
+        th, td {
+            padding: 15px 20px; /* Tăng padding để đồng bộ */
+            text-align: left;
+            border: 1px solid #e9ecef;
+            color: #343a40;
+            white-space: nowrap;
+            font-size: 0.95em; /* Tăng font size để đồng bộ */
+        }
+
+        th {
+            background-color: #e9ecef;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            color: #495057;
+            text-transform: uppercase; /* Đồng bộ uppercase */
+            letter-spacing: 0.05em; /* Đồng bộ letter spacing */
+        }
+
+        tbody tr:nth-child(even) { /* Thêm zebra striping */
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:hover {
+            background-color: #e2f0fe; /* Đồng bộ hover effect */
+            cursor: pointer;
+        }
+
+        /* Action buttons in table */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .action-buttons button {
+            padding: 8px 14px; /* Đồng bộ padding */
+            font-size: 0.9em;
+            border: none;
+            border-radius: 6px; /* Đồng bộ border-radius */
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .action-buttons button.edit-btn {
+            background-color: #007bff; /* Đồng bộ màu xanh */
+            color: white;
+        }
+
+        .action-buttons button.edit-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        /* Full-screen Loading Overlay - Đồng bộ */
+        .full-screen-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001; /* Đảm bảo nằm trên cùng */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .full-screen-loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .full-screen-spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid #fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom Message Box Overlay - Đồng bộ */
+        .custom-message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .custom-message-box-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-message-box-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            color: #333333;
+        }
+
+        .custom-message-box-content p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .custom-message-box-content button {
+            background-color: #4299e1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .custom-message-box-content button:hover {
+            background-color: #3182ce;
+        }
+
+        /* Salary Edit Modal - Đồng bộ với các modal khác */
+        .salary-edit-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Màu tối hơn một chút */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000; /* Đặt dưới loading overlay */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .salary-edit-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .salary-edit-modal-content {
+            background-color: #ffffff;
+            padding: 35px; /* Tăng padding */
+            border-radius: 12px; /* Bo góc lớn hơn */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* Đổ bóng mạnh hơn */
+            width: 90%;
+            max-width: 700px; /* Tăng max-width */
+            max-height: 90vh;
+            overflow-y: auto;
+            color: #333333;
+            position: relative; /* Thêm position relative */
+            transform: scale(0.95); /* Thêm hiệu ứng scale */
+            transition: transform 0.3s ease-out;
+        }
+
+        .salary-edit-modal-overlay.show .salary-edit-modal-content {
+            transform: scale(1);
+        }
+
+        .salary-edit-modal-content h3 {
+            font-size: 1.8em; /* Tăng font size */
+            margin-bottom: 25px; /* Tăng margin-bottom */
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 1px solid #e0e0e0; /* Thêm border-bottom */
+            padding-bottom: 15px; /* Tăng padding-bottom */
+        }
+
+        .salary-edit-modal-content .form-group {
+            margin-bottom: 20px; /* Tăng margin-bottom */
+        }
+
+        .salary-edit-modal-content .form-group label {
+            display: block;
+            margin-bottom: 8px; /* Đồng bộ margin-bottom */
+            font-weight: 600; /* Đồng bộ font-weight */
+            color: #555555; /* Đồng bộ màu chữ */
+            font-size: 0.95em; /* Đồng bộ font size */
+        }
+
+        .salary-edit-modal-content .form-group input[type="text"],
+        .salary-edit-modal-content .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px 15px; /* Đồng bộ padding */
+            border: 1px solid #ced4da; /* Đồng bộ border */
+            border-radius: 8px; /* Đồng bộ border-radius */
+            box-sizing: border-box;
+            font-size: 1em;
+            background-color: #fcfcfc; /* Đồng bộ background */
+            color: #333333; /* Đồng bộ màu chữ */
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .salary-edit-modal-content .form-group input[readonly] {
+            background-color: #e9ecef; /* Màu xám cho readonly */
+            cursor: not-allowed;
+            color: #666666;
+        }
+
+        .salary-edit-modal-actions {
+            margin-top: 30px; /* Tăng margin-top */
+            display: flex;
+            justify-content: center; /* Căn giữa nút */
+            gap: 20px; /* Tăng khoảng cách giữa các nút */
+        }
+
+        .salary-edit-modal-actions button {
+            padding: 12px 25px; /* Đồng bộ padding */
+            font-size: 1em;
+            border-radius: 8px; /* Đồng bộ border-radius */
+            font-weight: 600; /* Đồng bộ font-weight */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Đồng bộ shadow */
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s; /* Đồng bộ transition */
+        }
+
+        .salary-edit-modal-actions .cancel-btn {
+            background-color: #6c757d; /* Đồng bộ màu xám */
+            color: white;
+        }
+
+        .salary-edit-modal-actions .cancel-btn:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .salary-edit-modal-actions .save-btn {
+            background-color: #28a745; /* Đồng bộ màu xanh lá */
+            color: white;
+        }
+
+        .salary-edit-modal-actions .save-btn:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Modal Close Button */
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            color: #888888;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .modal-close-btn:hover { color: #333333; }
+
+
+        /* Điều chỉnh responsive - Đồng bộ với StudentInfo.html */
+        @media (max-width: 1024px) {
+            .header-date { display: none; }
+            .dashboard-title { font-size: 1.8rem; }
+            .card h2 { font-size: 1.5em; }
+            .table-controls { flex-direction: column; align-items: stretch; }
+            .search-bar { max-width: 100%; }
+            table th, table td { padding: 12px 15px; }
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; gap: 10px; padding: 10px 15px; }
+            .header-left { width: 100%; justify-content: space-between; gap: 10px; }
+            .header-right { width: 100%; justify-content: flex-end; }
+            .header-title { font-size: 1.5rem; }
+            .header-logo img { height: 80px; width: 80px; }
+            .user-info { margin-top: 10px; }
+            .user-details { display: none; }
+            .dashboard-body { padding: 15px; }
+            .dashboard-title { font-size: 1.6rem; margin-bottom: 20px; }
+            .card { padding: 15px; }
+            .card h2 { font-size: 1.3em; margin-bottom: 15px; }
+            table { min-width: 800px; } /* Giữ min-width để tránh bảng bị co quá nhỏ */
+            table th, table td { padding: 10px; font-size: 0.85em; }
+            .action-buttons button { padding: 6px 10px; font-size: 0.8em; }
+            .salary-edit-modal-content { width: 95%; padding: 20px; }
+            .salary-edit-modal-actions { flex-direction: column; gap: 10px; }
+            .salary-edit-modal-actions button { width: 100%; }
+            .modal-close-btn { font-size: 1.3em; top: 10px; right: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Full-screen Loading Overlay -->
+    <div id="fullScreenLoadingOverlay" class="full-screen-loading-overlay">
+        <div class="full-screen-spinner"></div>
+    </div>
+
+    <!-- Custom Message Box Overlay for general messages -->
+    <div id="customMessageBoxOverlay" class="custom-message-box-overlay">
+        <div class="custom-message-box-content">
+            <p id="customMessageText"></p>
+            <button id="closeCustomMessageBox">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Salary Edit Modal -->
+    <div id="salaryEditModalOverlay" class="salary-edit-modal-overlay">
+        <div class="salary-edit-modal-content">
+            <button class="modal-close-btn" id="closeSalaryEditModalBtn">&times;</button>
+            <h3>Chỉnh Sửa Lương Nhân Viên</h3>
+            <div class="form-group">
+                <label>Mã nhân viên:</label>
+                <input type="text" id="modalEmployeeId" readonly>
+            </div>
+            <div class="form-group">
+                <label>Tên nhân viên:</label>
+                <input type="text" id="modalEmployeeName" readonly>
+            </div>
+            <div class="form-group">
+                <label for="modalBasicSalary">Lương cơ bản:</label>
+                <input type="text" id="modalBasicSalary" data-type="currency" min="0">
+            </div>
+            <div class="form-group">
+                <label for="modalTravelAllowance">Phụ cấp đi lại:</label>
+                <input type="text" id="modalTravelAllowance" data-type="currency" min="0">
+            </div>
+            <div class="form-group">
+                <label for="modalMealAllowance">Phụ cấp ăn uống:</label>
+                <input type="text" id="modalMealAllowance" data-type="currency" min="0">
+            </div>
+            <div class="form-group">
+                <label for="modalAttendanceBonus">Thưởng chuyên cần:</label>
+                <input type="text" id="modalAttendanceBonus" data-type="currency" min="0">
+            </div>
+            <div class="form-group">
+                <label for="modalPerformanceBonus">Thưởng hiệu suất và trách nhiệm:</label>
+                <input type="text" id="modalPerformanceBonus" data-type="currency" min="0">
+            </div>
+            <div class="form-group">
+                <label for="modalOtherDeductions">Các khoản khấu trừ khác:</label>
+                <input type="text" id="modalOtherDeductions" data-type="currency" min="0">
+            </div>
+            <div class="salary-edit-modal-actions">
+                <button class="cancel-btn" id="cancelSalaryEditBtn">Hủy</button>
+                <button class="save-btn" id="saveSalaryEditBtn">Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Khu vực nội dung chính -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="header-logo">
+                    <!-- Placeholder image for logo. Replace with your actual logo URL. -->
+                    <img src="https://placehold.co/100x100/1a202c/e2e8f0?text=LOGO" alt="Trung Tâm Ngoại Ngữ 68">
+                </div>
+                <div class="header-title">Trung Tâm Ngoại Ngữ 68</div>
+            </div>
+            <div class="header-right">
+                <div id="currentDate" class="header-date"></div>
+                <div class="header-icons">
+                    <!-- Notification icon -->
+                    <svg id="notificationIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
+                    <span id="notificationCountBadge" class="notification-badge">0</span>
+                    <!-- Notification Dropdown -->
+                    <div id="notificationDropdown" class="notification-dropdown">
+                        <div class="notification-dropdown-header">
+                            <h3>Thông báo</h3>
+                            <button id="clearNotificationsBtn">Xóa tất cả</button>
+                        </div>
+                        <ul id="notificationList" class="notification-list">
+                            <!-- Notifications will be rendered here -->
+                            <li class="text-gray-400 text-sm p-2">Không có thông báo mới.</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Thông tin người dùng và Dropdown -->
+                <div class="user-info" id="userInfo">
+                    <img src="https://placehold.co/36x36/1a202c/e2e8f0?text=U" alt="User Avatar" />
+                    <div class="user-details">
+                        <span class="user-name" id="employeeName">Đang tải...</span>
+                        <span class="user-title" id="employeeTitle"></span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor: pointer; color: #a0aec0;">
+                        <path d="m6 9 6 6 6-6" />
+                    </svg>
+                    <div class="user-dropdown" id="userDropdown">
+                        <button id="changePasswordBtn">Đổi Mật Khẩu</button>
+                        <button id="logoutBtn">Đăng Xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nội dung chính của trang Quản Lý Lương Nhân Viên -->
+        <div class="dashboard-body">
+            <h1 class="dashboard-title">Quản Lý Lương Nhân Viên</h1>
+
+            <!-- Bộ lọc và tìm kiếm -->
+            <div class="card">
+                <h2>Tìm Kiếm & Lọc Nhân Viên</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                    <div>
+                        <label for="searchEmployee" class="block text-sm font-medium text-gray-700">Tìm kiếm theo tên/ID:</label>
+                        <input type="text" id="searchEmployee" placeholder="Nhập tên hoặc ID nhân viên...">
+                    </div>
+                    <div>
+                        <label for="filterContractType" class="block text-sm font-medium text-gray-700">Loại hợp đồng:</label>
+                        <select id="filterContractType">
+                            <option value="">-- Tất cả --</option>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                        </select>
+                    </div>
+                    <!-- Nút "Áp dụng bộ lọc" đã được loại bỏ -->
+                </div>
+            </div>
+
+            <!-- Bảng danh sách nhân viên -->
+            <div class="card">
+                <h2>Danh Sách Nhân Viên</h2>
+                <div class="table-container">
+                    <table id="employeeSalaryTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Họ và tên</th>
+                                <th>Vị trí</th>
+                                <th>Loại hợp đồng</th>
+                                <th>Lương cơ bản</th>
+                                <th>Tổng phụ cấp</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeSalaryTableBody">
+                            <!-- Dữ liệu nhân viên sẽ được tải động -->
+                            <tr><td colspan="7" class="text-center text-gray-500 py-4">Đang tải dữ liệu nhân viên...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lấy các phần tử DOM cần thiết
+        const fullScreenLoadingOverlay = document.getElementById('fullScreenLoadingOverlay');
+        const customMessageBoxOverlay = document.getElementById('customMessageBoxOverlay');
+        const customMessageText = document.getElementById('customMessageText');
+        const closeCustomMessageBox = document.getElementById('closeCustomMessageBox');
+
+        const searchEmployeeInput = document.getElementById('searchEmployee');
+        const filterContractTypeSelect = document.getElementById('filterContractType');
+        // const applyFilterBtn = document.getElementById('applyFilterBtn'); // Nút này đã được loại bỏ
+
+        const employeeSalaryTableBody = document.getElementById('employeeSalaryTableBody');
+
+        // Salary Edit Modal elements
+        const salaryEditModalOverlay = document.getElementById('salaryEditModalOverlay');
+        const modalEmployeeId = document.getElementById('modalEmployeeId');
+        const modalEmployeeName = document.getElementById('modalEmployeeName');
+        const modalBasicSalary = document.getElementById('modalBasicSalary');
+        const modalTravelAllowance = document.getElementById('modalTravelAllowance');
+        const modalMealAllowance = document.getElementById('modalMealAllowance');
+        const modalAttendanceBonus = document.getElementById('modalAttendanceBonus');
+        const modalPerformanceBonus = document.getElementById('modalPerformanceBonus');
+        const modalOtherDeductions = document.getElementById('modalOtherDeductions'); // Đã sửa lỗi chính tả
+        const cancelSalaryEditBtn = document.getElementById('cancelSalaryEditBtn');
+        const saveSalaryEditBtn = document.getElementById('saveSalaryEditBtn');
+        const closeSalaryEditModalBtn = document.getElementById('closeSalaryEditModalBtn'); // New close button for modal
+
+        let currentEmployeeList = []; // Danh sách nhân viên hiện tại được hiển thị
+        let selectedEmployeeForEdit = null; // Nhân viên đang được chỉnh sửa
+
+        /**
+         * Hiển thị lớp phủ tải toàn màn hình.
+         */
+        function showFullScreenLoading() {
+            fullScreenLoadingOverlay.classList.add('active');
+        }
+
+        /**
+         * Ẩn lớp phủ tải toàn màn hình.
+         */
+        function hideFullScreenLoading() {
+            fullScreenLoadingOverlay.classList.remove('active');
+        }
+
+        /**
+         * Hiển thị một thông báo tùy chỉnh thay vì alert().
+         * @param {string} message - Nội dung thông báo.
+         */
+        function showCustomMessage(message) {
+            customMessageText.textContent = message;
+            customMessageBoxOverlay.classList.add('show');
+        }
+
+        // Đóng hộp thoại thông báo tùy chỉnh khi nhấp vào nút "Đóng"
+        closeCustomMessageBox.addEventListener('click', () => {
+            customMessageBoxOverlay.classList.remove('show');
+        });
+
+        /**
+         * Formats a number with thousands separators for input display.
+         * @param {number} amount - The number to format.
+         * @returns {string} - Formatted string (e.g., "10,000,000").
+         */
+        function formatNumberForInput(amount) {
+            if (typeof amount !== 'number' || isNaN(amount)) {
+                return '';
+            }
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        }
+
+        /**
+         * Parses a formatted number string back to a float.
+         * Removes non-numeric characters except for the decimal point.
+         * @param {string} formattedString - The string to parse (e.g., "10.000.000" or "10,000,000").
+         * @returns {number} - The parsed float number.
+         */
+        function parseFormattedNumber(formattedString) {
+            if (typeof formattedString !== 'string' || formattedString.trim() === '') {
+                return 0;
+            }
+            // Remove all non-digit characters except for the comma (used as decimal in some locales)
+            // For Vietnamese locale, thousands separator is '.' and decimal is ','
+            // We need to remove '.' and replace ',' with '.' for parseFloat
+            let cleanedString = formattedString.replace(/\./g, ''); // Remove thousands separator (dots)
+            cleanedString = cleanedString.replace(/,/g, '.'); // Replace decimal comma with dot for parseFloat
+            return parseFloat(cleanedString) || 0;
+        }
+
+
+        /**
+         * Hiển thị modal chỉnh sửa lương.
+         * @param {object} employeeData - Dữ liệu nhân viên cần chỉnh sửa lương.
+         */
+        function showSalaryEditModal(employeeData) {
+            selectedEmployeeForEdit = employeeData;
+            modalEmployeeId.value = employeeData.employeeId || '';
+            modalEmployeeName.value = employeeData.employeeName || '';
+            modalBasicSalary.value = formatNumberForInput(employeeData.basicSalary);
+            modalTravelAllowance.value = formatNumberForInput(employeeData.travelAllowance);
+            modalMealAllowance.value = formatNumberForInput(employeeData.mealAllowance);
+            modalAttendanceBonus.value = formatNumberForInput(employeeData.attendanceBonus);
+            modalPerformanceBonus.value = formatNumberForInput(employeeData.performanceBonus);
+            modalOtherDeductions.value = formatNumberForInput(employeeData.otherDeductions);
+
+            salaryEditModalOverlay.classList.add('show');
+        }
+
+        /**
+         * Ẩn modal chỉnh sửa lương.
+         */
+        function hideSalaryEditModal() {
+            salaryEditModalOverlay.classList.remove('show');
+            selectedEmployeeForEdit = null;
+        }
+
+        // Gắn sự kiện cho nút Hủy trong modal
+        cancelSalaryEditBtn.addEventListener('click', hideSalaryEditModal);
+        // Gắn sự kiện cho nút đóng (X) trong modal
+        closeSalaryEditModalBtn.addEventListener('click', hideSalaryEditModal);
+        // Đóng modal khi click ra ngoài overlay
+        salaryEditModalOverlay.addEventListener('click', (event) => {
+            if (event.target === salaryEditModalOverlay) {
+                hideSalaryEditModal();
+            }
+        });
+
+        // Gắn sự kiện cho nút Lưu Thay Đổi trong modal
+        saveSalaryEditBtn.addEventListener('click', () => {
+            if (selectedEmployeeForEdit) {
+                const updatedSalaryData = {
+                    employeeId: selectedEmployeeForEdit.employeeId,
+                    basicSalary: parseFormattedNumber(modalBasicSalary.value),
+                    travelAllowance: parseFormattedNumber(modalTravelAllowance.value),
+                    mealAllowance: parseFormattedNumber(modalMealAllowance.value),
+                    attendanceBonus: parseFormattedNumber(modalAttendanceBonus.value),
+                    performanceBonus: parseFormattedNumber(modalPerformanceBonus.value),
+                    otherDeductions: parseFormattedNumber(modalOtherDeductions.value)
+                };
+                saveEmployeeSalary(updatedSalaryData);
+            }
+            hideSalaryEditModal();
+        });
+
+        // Add input event listener to currency fields for live formatting
+        document.querySelectorAll('[data-type="currency"]').forEach(input => {
+            input.addEventListener('input', (event) => {
+                let value = event.target.value;
+                // Remove all non-digit characters except for comma (if used as decimal)
+                // For Vietnamese, we remove dots and keep comma for decimal temporarily if user types it
+                let cleanedValue = value.replace(/[^\d,]/g, ''); 
+                
+                // If there's a comma, treat it as a decimal point for internal parsing
+                if (cleanedValue.includes(',')) {
+                    const parts = cleanedValue.split(',');
+                    if (parts.length > 2) { // Only allow one comma
+                        cleanedValue = parts[0] + ',' + parts.slice(1).join('');
+                    }
+                    // After parsing, convert back to number and then format for display
+                    const num = parseFormattedNumber(cleanedValue);
+                    event.target.value = formatNumberForInput(num);
+                } else {
+                    const num = parseInt(cleanedValue, 10);
+                    event.target.value = formatNumberForInput(num);
+                }
+            });
+
+            // Re-format on blur to ensure consistency
+            input.addEventListener('blur', (event) => {
+                const num = parseFormattedNumber(event.target.value);
+                event.target.value = formatNumberForInput(num);
+            });
+        });
+
+
+        /**
+         * Cập nhật ngày và giờ hiện tại trên header.
+         */
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('vi-VN', options);
+        }
+        updateCurrentDate(); // Gọi lần đầu khi tải trang
+        setInterval(updateCurrentDate, 60000); // Cập nhật mỗi phút
+
+        // Xử lý dropdown thông tin người dùng
+        const userInfo = document.getElementById('userInfo');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userInfo && userDropdown) {
+            userInfo.addEventListener('click', (event) => {
+                event.stopPropagation(); // Ngăn chặn sự kiện click lan truyền ra body
+                userDropdown.classList.toggle('show'); // Hiển thị/ẩn dropdown
+                // Close notification dropdown if open
+                if (notificationDropdown.classList.contains('show')) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+
+            // Ẩn dropdown khi click ra ngoài
+            document.body.addEventListener('click', (event) => {
+                if (userDropdown.classList.contains('show') && !userInfo.contains(event.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Xử lý nút "Đổi Mật Khẩu"
+        if (changePasswordBtn) {
+            changePasswordBtn.addEventListener('click', () => {
+                showFullScreenLoading();
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({ type: 'ShowChangePasswordDialog' }));
+                } else {
+                    showCustomMessage('Chức năng đổi mật khẩu chỉ khả dụng trong ứng dụng Windows Forms.');
+                }
+                userDropdown.classList.remove('show');
+                setTimeout(hideFullScreenLoading, 1000);
+            });
+        }
+
+        // Xử lý nút "Đăng Xuất"
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({ type: 'Logout' }));
+                } else {
+                    showCustomMessage('Chức năng đăng xuất chỉ khả dụng trong ứng dụng Windows Forms.');
+                }
+                userDropdown.classList.remove('show');
+            });
+        }
+
+        /**
+         * Đặt tên người dùng đã đăng nhập.
+         * @param {string} name - Tên người dùng.
+         */
+        function setLoggedInUserName(name, title) {
+            const userNameSpan = document.getElementById('employeeName');
+            const userTitleSpan = document.getElementById('employeeTitle');
+            if (userNameSpan) {
+                userNameSpan.textContent = name;
+            }
+            if (userTitleSpan) {
+                userTitleSpan.textContent = title;
+            }
+        }
+
+        // Notification dropdown handling (Copied from DepartmentInfo.html for consistency)
+        const notificationIcon = document.getElementById('notificationIcon');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationCountBadge = document.getElementById('notificationCountBadge');
+        const notificationList = document.getElementById('notificationList'); // Changed to notificationList
+        const clearNotificationsBtn = document.getElementById('clearNotificationsBtn'); // Changed from markAllReadBtn
+
+        let activeNotifications = [];
+
+        function updateNotificationCount(count) {
+            if (notificationCountBadge) {
+                notificationCountBadge.textContent = count > 99 ? '99+' : count;
+                if (count > 0) {
+                    notificationCountBadge.style.display = 'block';
+                } else {
+                    notificationCountBadge.style.display = 'none';
+                }
+            }
+        }
+
+        function isSameDay(d1, d2) {
+            return d1.getFullYear() === d2.getFullYear() &&
+                   d1.getMonth() === d2.getMonth() &&
+                   d1.getDate() === d2.getDate();
+        }
+
+        function getTimeCategory(notificationDate) {
+            const now = new Date();
+            const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            yesterday.setHours(0, 0, 0, 0);
+
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            // Normalize notificationDate to exclude seconds and milliseconds for comparison
+            const normalizedNotificationDate = new Date(notificationDate.getFullYear(), notificationDate.getMonth(), notificationDate.getDate(), notificationDate.getHours(), notificationDate.getMinutes());
+
+
+            if (normalizedNotificationDate > oneHourAgo) {
+                return 'Mới';
+            } else if (isSameDay(normalizedNotificationDate, now)) {
+                return 'Hôm nay';
+            } else if (isSameDay(normalizedNotificationDate, yesterday)) {
+                return 'Hôm qua';
+            } else if (normalizedNotificationDate >= startOfWeek) {
+                return 'Tuần này';
+            } else if (normalizedNotificationDate >= startOfMonth) {
+                return 'Tháng này';
+            }
+            return 'Cũ hơn';
+        }
+
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            let interval = seconds / 31536000;
+            if (interval > 1) {
+                return Math.floor(interval) + " năm trước";
+            }
+            interval = seconds / 2592000;
+            if (interval > 1) {
+                return Math.floor(interval) + " tháng trước";
+            }
+            interval = seconds / 86400;
+            if (interval > 1) {
+                return Math.floor(interval) + " ngày trước";
+            }
+            interval = seconds / 3600;
+            if (interval > 1) {
+                return Math.floor(interval) + " giờ trước";
+            }
+            interval = seconds / 60;
+            if (interval > 1) {
+                return Math.floor(interval) + " phút trước";
+            }
+            return Math.floor(seconds) + " giây trước";
+        }
+
+        /**
+         * Renders the list of notifications in the dropdown.
+         * @param {Array<Object>} notifications - Array of notification objects.
+         */
+        function renderNotifications(notifications) {
+            notificationList.innerHTML = ''; // Clear existing notifications
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<li class="no-notifications">Không có thông báo mới.</li>';
+                clearNotificationsBtn.style.display = 'none';
+                updateNotificationCount(0);
+                return;
+            }
+
+            clearNotificationsBtn.style.display = 'block';
+
+            // Sort notifications by date (newest first)
+            notifications.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+            const groupedNotifications = {
+                'Mới': [],
+                'Hôm nay': [],
+                'Hôm qua': [],
+                'Tuần này': [],
+                'Tháng này': [],
+                'Cũ hơn': []
+            };
+
+            // Group notifications by time category
+            notifications.forEach(notif => {
+                const category = getTimeCategory(notif.date);
+                if (!groupedNotifications[category]) {
+                    groupedNotifications[category] = [];
+                }
+                groupedNotifications[category].push(notif);
+            });
+
+            const categoryOrder = ['Mới', 'Hôm nay', 'Hôm qua', 'Tuần này', 'Tháng này', 'Cũ hơn'];
+
+            // Render notifications grouped by category
+            categoryOrder.forEach(category => {
+                if (groupedNotifications[category].length > 0) {
+                    const categoryHeader = document.createElement('li'); // Changed to li for list
+                    categoryHeader.classList.add('notification-dropdown-header'); // Re-using existing style for category
+                    categoryHeader.innerHTML = `<h3>${category}</h3>`; // Added h3 for consistent styling
+                    notificationList.appendChild(categoryHeader);
+
+                    groupedNotifications[category].forEach(notif => {
+                        const notificationItem = document.createElement('li'); // Changed to li
+                        notificationItem.classList.add('notification-item');
+                        notificationItem.dataset.id = notif.id;
+                        notificationItem.innerHTML = `
+                            <strong>${notif.title}:</strong> ${notif.message}
+                            <span class="time">${formatTimeAgo(notif.date)}</span>
+                        `;
+                        notificationList.appendChild(notificationItem);
+
+                        // Add event listener to mark as read
+                        notificationItem.addEventListener('click', (event) => {
+                            event.stopPropagation();
+                            markNotificationAsRead(notif.id);
+                            // Optionally, close the dropdown after marking one as read
+                            notificationDropdown.classList.remove('show');
+                        });
+                    });
+                }
+            });
+            updateNotificationCount(notifications.length);
+        }
+
+        /**
+         * Marks a specific notification as read and re-renders the list.
+         * @param {string} id - The ID of the notification to mark as read.
+         */
+        function markNotificationAsRead(id) {
+            activeNotifications = activeNotifications.filter(notif => notif.id !== id);
+            renderNotifications(activeNotifications);
+            showCustomMessage(`Thông báo "${id}" đã được đánh dấu là đã đọc.`);
+            notificationDropdown.classList.remove('show');
+        }
+
+        // Initial mock notifications
+        activeNotifications = [
+            { id: 'notif1', title: 'Thông báo 1', message: 'Học viên mới đã đăng ký.', date: new Date(Date.now() - 30 * 60 * 1000) },
+            { id: 'notif2', title: 'Thông báo 2', message: 'Lịch học sắp tới.', date: new Date(Date.now() - 5 * 60 * 60 * 1000) },
+            { id: 'notif3', title: 'Thông báo 3', message: 'Yêu cầu hỗ trợ mới.', date: new Date(Date.now() - 24 * 60 * 60 * 1000 - 2 * 60 * 60 * 1000) },
+            { id: 'notif4', title: 'Thông báo 4', message: 'Khóa học mới được thêm.', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+            { id: 'notif5', title: 'Thông báo 5', message: 'Cập nhật hệ thống.', date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) },
+            { id: 'notif6', title: 'Thông báo 6', message: 'Báo cáo hàng tháng đã sẵn sàng.', date: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000) },
+        ];
+        renderNotifications(activeNotifications);
+
+        if (notificationIcon && notificationDropdown) {
+            notificationIcon.addEventListener('click', (event) => {
+                event.stopPropagation();
+                notificationDropdown.classList.toggle('show');
+                // Close user dropdown if open
+                if (userDropdown.classList.contains('show')) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+
+            document.body.addEventListener('click', (event) => {
+                if (notificationDropdown.classList.contains('show') && !notificationIcon.contains(event.target) && !notificationDropdown.contains(event.target)) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        if (clearNotificationsBtn) {
+            clearNotificationsBtn.addEventListener('click', () => {
+                activeNotifications = [];
+                renderNotifications(activeNotifications);
+                notificationDropdown.classList.remove('show');
+                showCustomMessage('Tất cả thông báo đã được đánh dấu là đã đọc.');
+            });
+        }
+
+        /**
+         * Định dạng số thành tiền tệ VNĐ.
+         * @param {number} amount - Số tiền.
+         * @returns {string} - Chuỗi tiền tệ đã định dạng.
+         */
+        function formatCurrency(amount) {
+            if (typeof amount !== 'number') {
+                return '0 VNĐ';
+            }
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        /**
+         * Hiển thị danh sách nhân viên và thông tin lương vào bảng.
+         * @param {Array<object>} data - Mảng dữ liệu nhân viên.
+         */
+        function renderEmployeeSalaryTable(data) {
+            employeeSalaryTableBody.innerHTML = ''; // Xóa nội dung cũ
+            if (data && data.length > 0) {
+                currentEmployeeList = data; // Lưu trữ dữ liệu hiện tại
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    const totalAllowances = (item.travelAllowance || 0) + (item.mealAllowance || 0) + (item.attendanceBonus || 0) + (item.performanceBonus || 0);
+                    row.innerHTML = `
+                        <td>${item.employeeId || 'N/A'}</td>
+                        <td>${item.employeeName || 'N/A'}</td>
+                        <td>${item.position || 'N/A'}</td>
+                        <td>${item.contractType || 'N/A'}</td>
+                        <td>${formatCurrency(item.basicSalary)}</td>
+                        <td>${formatCurrency(totalAllowances)}</td>
+                        <td class="action-buttons">
+                            <button class="edit-btn" data-employee-id="${item.employeeId}">Chỉnh sửa</button>
+                        </td>
+                    `;
+                    employeeSalaryTableBody.appendChild(row);
+                });
+
+                // Gắn sự kiện click cho các nút "Chỉnh sửa"
+                document.querySelectorAll('#employeeSalaryTableBody .edit-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const employeeId = event.target.dataset.employeeId;
+                        const employeeData = currentEmployeeList.find(emp => emp.employeeId === employeeId);
+                        if (employeeData) {
+                            showSalaryEditModal(employeeData);
+                        } else {
+                            showCustomMessage('Không tìm thấy thông tin nhân viên để chỉnh sửa.');
+                        }
+                    });
+                });
+
+            } else {
+                employeeSalaryTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-4">Không có dữ liệu nhân viên.</td></tr>';
+            }
+        }
+
+        /**
+         * Gửi yêu cầu lưu dữ liệu lương nhân viên về C#.
+         * @param {object} salaryData - Dữ liệu lương đã cập nhật.
+         */
+        function saveEmployeeSalary(salaryData) {
+            showFullScreenLoading();
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'saveEmployeeSalary',
+                    data: salaryData
+                }));
+            } else {
+                // Simulate saving data for browser environment
+                setTimeout(() => {
+                    const index = currentEmployeeList.findIndex(emp => emp.employeeId === salaryData.employeeId);
+                    if (index !== -1) {
+                        currentEmployeeList[index] = { ...currentEmployeeList[index], ...salaryData };
+                        showCustomMessage(`Đã mô phỏng lưu lương cho ${currentEmployeeList[index].employeeName}.`);
+                        renderEmployeeSalaryTable(currentEmployeeList); // Re-render with updated data
+                    } else {
+                        showCustomMessage('Không tìm thấy nhân viên để cập nhật lương (Mô phỏng).');
+                    }
+                    hideFullScreenLoading();
+                }, 1000); // Simulate network delay
+            }
+        }
+
+        /**
+         * Gửi yêu cầu dữ liệu nhân viên (bao gồm thông tin lương) đến C# dựa trên bộ lọc.
+         * @param {string} searchTerm - Từ khóa tìm kiếm (tên/ID).
+         * @param {string} contractType - Loại hợp đồng để lọc.
+         */
+        function requestEmployeeSalaryData(searchTerm, contractType) {
+            showFullScreenLoading();
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'requestEmployeeSalaryData',
+                    searchTerm: searchTerm,
+                    contractType: contractType
+                }));
+            } else {
+                // Mô phỏng dữ liệu cho môi trường trình duyệt
+                setTimeout(() => { // Simulate a small delay for mock data loading
+                    simulateEmployeeSalaryData(searchTerm, contractType);
+                    hideFullScreenLoading();
+                }, 800); // Small delay to make loading visible
+            }
+        }
+
+        // Gắn sự kiện `input` cho ô tìm kiếm và `change` cho dropdown loại hợp đồng
+        if (searchEmployeeInput) {
+            searchEmployeeInput.addEventListener('input', () => {
+                const searchTerm = searchEmployeeInput.value.trim();
+                const contractType = filterContractTypeSelect.value;
+                requestEmployeeSalaryData(searchTerm, contractType);
+            });
+        }
+
+        if (filterContractTypeSelect) {
+            filterContractTypeSelect.addEventListener('change', () => {
+                const searchTerm = searchEmployeeInput.value.trim();
+                const contractType = filterContractTypeSelect.value;
+                requestEmployeeSalaryData(searchTerm, contractType);
+            });
+        }
+
+        // Lắng nghe thông báo từ C# (WebView2)
+        let initialDataLoadedFromWebView = false; // Flag to track initial data load
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', event => {
+                const message = JSON.parse(event.data);
+                if (message.type === 'employeeSalaryData') {
+                    renderEmployeeSalaryTable(message.data);
+                    initialDataLoadedFromWebView = true;
+                    hideFullScreenLoading();
+                } else if (message.type === 'loggedInUserName') {
+                    setLoggedInUserName(message.name, message.title);
+                } else if (message.type === 'saveEmployeeSalaryStatus') {
+                    hideFullScreenLoading();
+                    if (message.success) {
+                        showCustomMessage('Cập nhật lương nhân viên thành công!');
+                        // Làm mới dữ liệu sau khi lưu
+                        requestEmployeeSalaryData(searchEmployeeInput.value.trim(), filterContractTypeSelect.value);
+                    } else {
+                        showCustomMessage('Lỗi khi cập nhật lương nhân viên: ' + message.error);
+                    }
+                }
+            });
+        }
+
+        // Hàm mô phỏng dữ liệu cho môi trường trình duyệt (không phải WebView2)
+        function simulateEmployeeSalaryData(searchTerm, contractType) {
+            const dummyEmployeeData = [
+                { employeeId: 'GV001', employeeName: 'Nguyễn Văn A', position: 'Giáo viên HSK', contractType: 'Full-time', basicSalary: 8000000, travelAllowance: 500000, mealAllowance: 800000, attendanceBonus: 200000, performanceBonus: 500000, otherDeductions: 100000 },
+                { employeeId: 'GV002', employeeName: 'Trần Thị B', position: 'Giáo viên HSK', contractType: 'Part-time', basicSalary: 4000000, travelAllowance: 200000, mealAllowance: 300000, attendanceBonus: 100000, performanceBonus: 0, otherDeductions: 50000 },
+                { employeeId: 'NV001', employeeName: 'Lê Văn C', position: 'Quản lý', contractType: 'Full-time', basicSalary: 15000000, travelAllowance: 1000000, mealAllowance: 1200000, attendanceBonus: 300000, performanceBonus: 1000000, otherDeductions: 0 },
+                { employeeId: 'NV002', employeeName: 'Phạm Thị D', position: 'Tư vấn viên', contractType: 'Part-time', basicSalary: 3500000, travelAllowance: 150000, mealAllowance: 250000, attendanceBonus: 80000, performanceBonus: 0, otherDeductions: 20000 },
+                { employeeId: 'NV003', employeeName: 'Hoàng Văn E', position: 'Giáo viên IELTS', contractType: 'Full-time', basicSalary: 9000000, travelAllowance: 600000, mealAllowance: 900000, attendanceBonus: 250000, performanceBonus: 600000, otherDeductions: 120000 },
+                { employeeId: 'NV004', employeeName: 'Đặng Thị F', position: 'Trợ giảng', contractType: 'Part-time', basicSalary: 3000000, travelAllowance: 100000, mealAllowance: 200000, attendanceBonus: 50000, performanceBonus: 0, otherDeductions: 10000 }
+            ];
+
+            const filteredData = dummyEmployeeData.filter(emp => {
+                const searchMatch = !searchTerm ||
+                                    emp.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase());
+                const contractTypeMatch = !contractType || emp.contractType === contractType;
+                return searchMatch && contractTypeMatch;
+            });
+
+            renderEmployeeSalaryTable(filteredData);
+        }
+
+        // Yêu cầu dữ liệu ban đầu khi trang tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            showFullScreenLoading(); // Show loading immediately
+
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({ type: 'requestLoggedInUserName' }));
+                
+                // Request initial employee salary data
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'requestEmployeeSalaryData',
+                    searchTerm: '',
+                    contractType: ''
+                }));
+
+                // Fallback to hide loading if C# doesn't send data within a reasonable time
+                setTimeout(() => {
+                    if (!initialDataLoadedFromWebView) {
+                        console.warn("No employeeSalaryData received from C# WebView2 within timeout. Hiding loading screen.");
+                        hideFullScreenLoading();
+                    }
+                }, 5000); // 5 seconds timeout
+            } else {
+                // Simulate data for browser environment
+                setTimeout(() => { // Simulate a small delay for mock data loading
+                    simulateEmployeeSalaryData('', '');
+                    hideFullScreenLoading();
+                }, 800); // Small delay to make loading visible
+            }
+        });
+    </script>
+</body>
+</html>
