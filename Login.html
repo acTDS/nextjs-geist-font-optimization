@@ -1,0 +1,360 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yêu cầu đăng nhập hệ thống - Trung Tâm Ngoại Ngữ 68</title>
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tải Font Awesome cho các icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General font and background settings - Consistent with other pages */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Sử dụng hình ảnh làm nền cho toàn bộ body */
+             background: url('Logo1.jpg') no-repeat center center fixed;
+            background-size: cover; /* Đảm bảo hình nền phủ toàn bộ trang */
+            color: #333333; /* Default text color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: auto; /* Allow scrolling if content overflows */
+            position: relative; /* Needed for absolute positioning of copyright */
+        }
+
+        .login-container {
+            background-color: #ffffff; /* White background for the card */
+            padding: 2.5rem; /* Adjusted padding */
+            border-radius: 10px; /* Rounded corners consistent with cards */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
+            max-width: 450px; /* Consistent max width with change password page */
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem; /* Adjusted gap between elements */
+            animation: fadeIn 0.8s ease-out; /* Slightly faster animation */
+            border: 1px solid #e0e0e0; /* Subtle border */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: 2rem; /* Adjusted font size */
+            font-weight: 700;
+            color: #2c3e50; /* Darker title color */
+            margin-bottom: 1.5rem; /* Increased margin */
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f39c12; /* Accent border bottom */
+        }
+
+        .input-group {
+            text-align: left;
+            position: relative;
+            margin-bottom: 1rem; /* Consistent margin bottom */
+        }
+
+        .input-label {
+            display: block;
+            color: #555555; /* Softer label color */
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 15px; /* Consistent padding */
+            border: 1px solid #ced4da; /* Consistent border color */
+            border-radius: 8px; /* Consistent border radius */
+            font-size: 1em; /* Consistent font size */
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            background-color: #fcfcfc; /* Lighter input background */
+            color: #333333; /* Input text color */
+        }
+
+            .input-field:focus {
+                border-color: #007bff; /* Blue focus border */
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Blue shadow */
+                background-color: #ffffff;
+            }
+
+        .login-button {
+            width: 100%;
+            padding: 12px 25px; /* Consistent padding */
+            background-color: #4299e1; /* Primary blue color */
+            color: white;
+            border: none;
+            border-radius: 8px; /* Consistent border radius */
+            font-size: 1.05em; /* Consistent font size */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s; /* Smoother transition */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Softer shadow */
+            letter-spacing: 0.02em; /* Reduced letter spacing */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1.5rem; /* Increased margin top */
+        }
+
+            .login-button:hover:not(:disabled) {
+                background-color: #3182ce; /* Darker blue on hover */
+                transform: translateY(-1px); /* Subtle lift */
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            }
+
+            .login-button:active:not(:disabled) {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .login-button:disabled {
+                opacity: 0.6; /* More visible disabled state */
+                cursor: not-allowed;
+                background-color: #90cdf4; /* Lighter blue for disabled */
+                box-shadow: none;
+                transform: none;
+            }
+
+        .message-box {
+            padding: 12px 15px; /* Consistent padding */
+            border-radius: 8px; /* Consistent border radius */
+            margin-top: 1rem;
+            font-size: 0.95rem; /* Consistent font size */
+            display: none;
+            text-align: left; /* Align text to left */
+        }
+
+            .message-box.error {
+                background-color: #fef2f2; /* Light red background */
+                color: #ef4444; /* Red text */
+                border: 1px solid #fca5a5; /* Red border */
+            }
+
+            .message-box.success {
+                background-color: #ecfdf5; /* Light green background */
+                color: #10b981; /* Green text */
+                border: 1px solid #6ee7b7; /* Green border */
+            }
+
+        /* Loading Spinner (in button) */
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Copyright */
+        .copyright {
+            color: #666666; /* Darker color for better contrast on light background */
+            font-size: 0.85rem;
+            margin-top: 1.5rem; /* Space above copyright */
+            text-align: center; /* Center the text */
+        }
+
+        /* Full-screen Loading Overlay (MES effect) - Consistent with other pages */
+        .full-screen-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Darker overlay for loading */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001; /* Ensure it's on top */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+            .full-screen-loading-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        /* Larger spinner for Full-screen Loading Overlay */
+        .full-screen-spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid #fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        /* Text for Full-screen Loading Overlay */
+        .loading-text {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 500;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 1.5rem;
+                border-radius: 8px;
+            }
+            h2 {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+            }
+            .input-field, .login-button {
+                padding: 10px 12px;
+                font-size: 0.95em;
+            }
+            .message-box {
+                font-size: 0.85rem;
+            }
+            .copyright {
+                margin-top: 1rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Full-screen Loading Overlay -->
+    <div id="fullScreenLoadingOverlay" class="full-screen-loading-overlay">
+        <div class="full-screen-spinner"></div>
+        <div class="loading-text">Đang xử lý... Vui lòng chờ.</div>
+    </div>
+
+    <div class="login-container">
+        <!-- Logo above the title -->
+        <div class="flex justify-center mb-6">
+            <!-- Placeholder image for logo. Replace with your actual logo URL. -->
+            <img src="https://placehold.co/120x120/1a202c/e2e8f0?text=LOGO" alt="Logo Trung Tâm Ngoại Ngữ 68" class="h-24 w-24 rounded-full shadow-md">
+        </div>
+        <h2 class="text-3xl font-extrabold">Đăng nhập hệ thống</h2>
+
+        <div class="input-group">
+            <label for="username" class="input-label">Tên đăng nhập / Email</label>
+            <input type="text" id="username" class="input-field" placeholder="Nhập tên đăng nhập hoặc email của bạn">
+        </div>
+        <div class="input-group">
+            <label for="password" class="input-label">Mật khẩu</label>
+            <input type="password" id="password" class="input-field" placeholder="Nhập mật khẩu của bạn">
+        </div>
+
+        <button id="loginButton" class="login-button" onclick="handleLogin()">
+            <span id="buttonText">Đăng nhập</span>
+            <i id="loginIcon" class="fas fa-sign-in-alt ml-2"></i> <!-- Icon đăng nhập -->
+            <div id="loadingSpinner" class="loading-spinner"></div>
+        </button>
+
+        <div id="messageBox" class="message-box"></div>
+
+        <!-- Copyright inside login-container -->
+        <div class="copyright">
+            &copy; 68 Training Language Center. Design by HieuPham
+        </div>
+    </div>
+
+    <script>
+        // Function to display error/success messages
+        function showMessage(message, type = 'error') {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+            messageBox.className = 'message-box ' + type; // Apply error or success class
+        }
+
+        // Function to handle login event
+        async function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageBox = document.getElementById('messageBox');
+            const loginButton = document.getElementById('loginButton');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const buttonText = document.getElementById('buttonText');
+            const loginIcon = document.getElementById('loginIcon');
+            const fullScreenLoadingOverlay = document.getElementById('fullScreenLoadingOverlay');
+
+            messageBox.style.display = 'none'; // Hide old message
+
+            if (!username || !password) {
+                showMessage("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
+                return;
+            }
+
+            // Show full-screen loading overlay
+            fullScreenLoadingOverlay.classList.add('active');
+            fullScreenLoadingOverlay.querySelector('.loading-text').textContent = 'Đang đăng nhập...';
+
+
+            // Disable login button
+            loginButton.disabled = true;
+            buttonText.style.display = 'none';
+            loginIcon.style.display = 'none';
+            loadingSpinner.style.display = 'block';
+
+            try {
+                // Send login information to C# via Host Object
+                if (window.chrome && window.chrome.webview && window.chrome.webview.hostObjects && window.chrome.webview.hostObjects.bridge) {
+                    const result = await window.chrome.webview.hostObjects.bridge.Login(username, password);
+
+                    if (result.success) {
+                        showMessage("Đăng nhập thành công! Chuyển hướng...", 'success');
+                        // TODO: Redirect or load main application content
+                        // Example: await window.chrome.webview.hostObjects.bridge.NavigateToDashboard();
+                    } else {
+                        showMessage(result.message || "Tên đăng nhập hoặc mật khẩu không đúng.");
+                    }
+                } else {
+                    showMessage("Ứng dụng chưa sẵn sàng hoặc cầu nối với hệ thống chưa được thiết lập. Vui lòng thử lại sau.", 'error');
+                    console.warn("window.chrome.webview.hostObjects.bridge is not available.");
+                }
+            } catch (error) {
+                showMessage(`Lỗi khi gọi C# bridge: ${error.message}`);
+                console.error("Lỗi gọi C# bridge:", error);
+            } finally {
+                // Hide full-screen loading overlay
+                fullScreenLoadingOverlay.classList.remove('active');
+
+                // Enable button and restore state
+                loginButton.disabled = false;
+                buttonText.style.display = 'inline';
+                loginIcon.style.display = 'inline';
+                loadingSpinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
