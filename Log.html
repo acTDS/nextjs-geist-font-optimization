@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Tổng Hợp Nhật Ký Nhân Viên - Trung Tâm Ngoại Ngữ 68</title>
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tải font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Liên kết Font Awesome để sử dụng các biểu tượng -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Thiết lập font và màu nền chung - Nhất quán với MajorList.html */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Màu nền nhẹ nhàng */
+            color: #000000; /* Màu chữ mặc định */
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column; /* Đảm bảo nội dung chính xếp chồng dọc */
+            overflow-y: auto; /* Cho phép cuộn dọc toàn bộ trang */
+        }
+
+        /* Khu vực nội dung chính - Nhất quán với MajorList.html */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff; /* Nền trắng cho nội dung chính */
+            width: 100%; /* Chiếm toàn bộ chiều rộng */
+        }
+
+        /* Tiêu đề (Header) - Nhất quán với MajorList.html */
+        .header {
+            background-color: #2d3748;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px; /* Larger gap for consistency with MajorList.html */
+            flex-grow: 1; /* Allow it to expand */
+            justify-content: flex-start; /* Keep content aligned to start */
+        }
+
+        /* Logo styles - Nhất quán với MajorList.html */
+        .header-logo img {
+            height: 100px; /* Larger logo size */
+            width: 100px; /* Larger logo size */
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-title {
+            font-size: 1.8rem; /* Consistent font size */
+            font-weight: 600;
+            color: #e2e8f0;
+            white-space: nowrap; /* Prevent wrapping */
+        }
+
+        .header-date {
+            font-size: 1rem;
+            color: #a0aec0;
+            white-space: nowrap; /* Prevent wrapping */
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        /* Notification specific styles - Nhất quán với MajorList.html */
+        .header-notification-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icons svg {
+            width: 24px;
+            height: 24px;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .header-icons svg:hover {
+            color: #ffffff;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            line-height: 1;
+            min-width: 18px;
+            text-align: center;
+            box-shadow: 0 0 0 2px #2d3748;
+            display: none;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 10px); /* Adjusted for consistency */
+            right: 0;
+            background-color: #2d3748;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            min-width: 250px;
+            max-width: 350px;
+            max-height: 200px; /* Scrollable list */
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            padding: 10px 0;
+            margin-top: 5px;
+            opacity: 0; /* Added for transition effect */
+            transform: translateY(-10px); /* Added for transition effect */
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out; /* Added transition */
+        }
+
+        .notification-dropdown.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px 10px;
+            border-bottom: 1px solid #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .notification-dropdown-header h3 {
+            color: #e2e8f0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .notification-dropdown-header button {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .notification-dropdown-header button:hover {
+            color: #ffffff;
+        }
+
+        .notification-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notification-list li {
+            color: #e2e8f0;
+            padding: 10px 15px;
+            border-bottom: 1px solid #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .notification-list li:last-child {
+            border-bottom: none;
+        }
+
+        .notification-list li:hover {
+            background-color: #4a5568;
+        }
+
+        /* Thông tin người dùng và dropdown - Nhất quán với MajorList.html */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            cursor: pointer;
+            padding: 5px 0; /* Added padding for better click area */
+        }
+
+        .user-info img {
+            width: 36px; /* Larger avatar size */
+            height: 36px; /* Larger avatar size */
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #4299e1; /* Blue border */
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            text-align: left; /* Aligned left for consistency */
+            white-space: nowrap;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .user-details .user-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .user-details .user-title {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px); /* Adjusted top for consistency */
+            right: 0;
+            background-color: #2d3748;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            min-width: 150px;
+            display: none;
+            flex-direction: column;
+            padding: 10px 0;
+            opacity: 0; /* Added for transition effect */
+            transform: translateY(-10px); /* Added for transition effect */
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out; /* Added transition */
+        }
+
+        .user-dropdown.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .user-dropdown button {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            padding: 10px 15px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-radius: 0;
+        }
+
+        .user-dropdown button:hover {
+            background-color: #4a5568;
+        }
+
+        /* Nội dung chính của Dashboard - Container cho bảng nhật ký - Nhất quán với MajorList.html */
+        .dashboard-body {
+            padding: 30px;
+            flex-grow: 1;
+            background-color: #ffffff; /* Nền trắng cho dashboard body */
+        }
+
+        .dashboard-title {
+            font-size: 2.2rem; /* Larger title */
+            font-weight: 700;
+            color: #2c3e50; /* Darker black color */
+            margin-bottom: 30px;
+            text-align: center; /* Center title */
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db; /* More prominent bottom border */
+        }
+
+        /* Phần bảng nhật ký - Nhất quán với MajorList.html */
+        .log-table-section {
+            background-color: #ffffff; /* Nền TRẮNG */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Đổ bóng nhẹ hơn */
+        }
+
+        .log-table-section h2 {
+            color: #000000; /* Màu chữ ĐEN */
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-align: center;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 10px;
+        }
+
+        .table-controls {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping for responsiveness */
+            gap: 10px; /* Spacing between filter elements - Consistent with MajorList.html */
+            margin-bottom: 20px;
+            align-items: flex-end; /* Align items to the bottom */
+            justify-content: space-between; /* Distribute items */
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 180px; /* Minimum width for filter inputs */
+        }
+
+        .filter-group label {
+            font-size: 0.9em;
+            color: #555555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .filter-group input[type="text"],
+        .filter-group input[type="date"],
+        .filter-group select {
+            width: 100%; /* Make inputs take full width of their group */
+            padding: 10px 12px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            background-color: #ffffff;
+            color: #000000;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .filter-group input[type="text"]:focus,
+        .filter-group input[type="date"]:focus,
+        .filter-group select:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.25);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: auto; /* Push buttons to the bottom if filters wrap */
+        }
+
+        .action-buttons button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .action-buttons .clear-btn {
+            background-color: #f39c12; /* Orange */
+            color: white;
+        }
+        .action-buttons .clear-btn:hover {
+            background-color: #e67e22; /* Darker orange */
+            transform: translateY(-1px);
+        }
+
+        .action-buttons .export-btn {
+            background-color: #28a745; /* Green */
+            color: white;
+        }
+        .action-buttons .export-btn:hover {
+            background-color: #218838; /* Darker green */
+            transform: translateY(-1px);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 60vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid #b0b0b0; /* Viền bảng tổng thể rõ hơn */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Lighter shadow synchronized */
+        }
+
+        .employee-log-table {
+            width: 100%;
+            border-collapse: collapse; /* Đảm bảo các đường viền liền mạch */
+            min-width: 800px; /* Kích thước tối thiểu của bảng */
+        }
+
+        .employee-log-table th, .employee-log-table td {
+            padding: 15px 18px; /* Tăng padding để ô lớn hơn */
+            text-align: left;
+            border: 1px solid #d0d0d0; /* Kẻ ô cẩn thận hơn */
+            color: #000000; /* Màu chữ ĐEN */
+            white-space: nowrap;
+            font-size: 0.95em; /* Tăng nhẹ kích thước font */
+        }
+
+        .employee-log-table th {
+            background-color: #e8e8e8; /* Nền tiêu đề bảng sáng hơn */
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            color: #333333; /* Màu chữ đậm hơn cho tiêu đề */
+        }
+
+        .employee-log-table tbody tr:hover {
+            background-color: #f0f0f0; /* Hiệu ứng hover sáng hơn */
+        }
+
+        /* Pagination styles */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .pagination-controls button {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .pagination-controls button:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+
+        .pagination-controls button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 0.95em;
+            color: #555555;
+        }
+
+        /* CSS cho Full-screen Loading Overlay - Nhất quán với MajorList.html */
+        .full-screen-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001; /* Updated z-index to match MajorList.html */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .full-screen-loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .full-screen-spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid #fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom Message Box Overlay - Nhất quán với MajorList.html */
+        .custom-message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .custom-message-box-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-message-box-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            color: #333333;
+        }
+
+        .custom-message-box-content p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .custom-message-box-content button {
+            background-color: #4299e1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .custom-message-box-content button:hover {
+            background-color: #3182ce;
+        }
+
+        /* Điều chỉnh responsive - Nhất quán với MajorList.html */
+        @media (max-width: 1024px) {
+            .header-date { display: none; }
+            .dashboard-title { font-size: 1.8rem; }
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                min-width: unset;
+                width: 100%;
+            }
+            .action-buttons {
+                width: 100%;
+                justify-content: space-around;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .main-content {
+                padding: 20px;
+                border-radius: 0;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 10px 15px;
+            }
+
+            .header-left {
+                width: 100%;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: flex-end; /* Align right on mobile */
+            }
+
+            .header-title {
+                font-size: 1.5rem;
+            }
+            .header-logo img {
+                height: 80px;
+                width: 80px;
+            }
+            .user-info {
+                margin-top: 10px;
+            }
+            .user-details {
+                display: none;
+            }
+
+            .dashboard-body {
+                padding: 20px;
+            }
+
+            .dashboard-title {
+                font-size: 1.8rem;
+            }
+
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                max-width: 100%;
+            }
+
+            .employee-log-table {
+                min-width: unset; /* Loại bỏ min-width trên di động */
+            }
+
+            .employee-log-table th, .employee-log-table td {
+                padding: 8px 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body data-user-role="default">
+    <!-- Full-screen Loading Overlay -->
+    <div id="fullScreenLoadingOverlay" class="full-screen-loading-overlay">
+        <div class="full-screen-spinner"></div>
+    </div>
+
+    <!-- Custom Message Box Overlay for general messages -->
+    <div id="customMessageBoxOverlay" class="custom-message-box-overlay">
+        <div class="custom-message-box-content">
+            <p id="customMessageText"></p>
+            <button id="closeCustomMessageBox">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Khu vực nội dung chính -->
+    <div class="main-content">
+        <!-- Tiêu đề -->
+        <div class="header">
+            <div class="header-left">
+                <div class="header-logo">
+                    <img src="https://placehold.co/100x100/4a5568/e2e8f0?text=LOGO" alt="Trung Tâm Ngoại Ngữ 68">
+                </div>
+                <div class="header-title">Trung Tâm Ngoại Ngữ 68</div>
+            </div>
+            <div class="header-right">
+                <div id="currentDate" class="header-date"></div>
+                <div class="header-notification-wrapper">
+                    <div class="header-icons" id="notificationBellIcon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
+                        <div class="notification-badge" id="notificationCountBadge">0</div>
+                    </div>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-dropdown-header">
+                            <h3>Thông báo</h3>
+                            <button id="clearNotificationsBtn">Xóa tất cả</button>
+                        </div>
+                        <ul id="notificationList" class="notification-list">
+                            <li class="text-gray-400 text-sm p-2">Không có thông báo mới.</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Thông tin người dùng và Dropdown -->
+                <div class="user-info" id="userInfo">
+                    <img src="https://placehold.co/36x36/1a202c/e2e8f0?text=U" alt="User Avatar" />
+                    <div class="user-details">
+                        <span class="user-name" id="employeeName">Đang tải...</span>
+                        <span class="user-title" id="employeeTitle"></span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down" style="cursor: pointer; color: #a0aec0;">
+                        <path d="m6 9 6 6 6-6" />
+                    </svg>
+                    <div class="user-dropdown" id="userDropdown">
+                        <button id="changePasswordBtn">Đổi Mật Khẩu</button>
+                        <button id="logoutBtn">Đăng Xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nội dung chính của Dashboard - Bảng Tổng Hợp Nhật Ký Nhân Viên -->
+        <div class="dashboard-body">
+            <h1 class="dashboard-title">Bảng Tổng Hợp Nhật Ký Nhân Viên</h1>
+
+            <div class="log-table-section">
+                <h2>Danh Sách Nhật Ký</h2>
+                <div class="table-controls">
+                    <div class="filter-group">
+                        <label for="searchInput">Tìm kiếm:</label>
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm theo bất kỳ trường nào..." />
+                    </div>
+                    <div class="filter-group">
+                        <label for="startDateInput">Từ ngày:</label>
+                        <input type="date" id="startDateInput" />
+                    </div>
+                    <div class="filter-group">
+                        <label for="endDateInput">Đến ngày:</label>
+                        <input type="date" id="endDateInput" />
+                    </div>
+                    <div class="filter-group">
+                        <label for="actionTypeSelect">Loại hành động:</label>
+                        <select id="actionTypeSelect">
+                            <option value="">Tất cả</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="employeeIdInput">Mã NV:</label>
+                        <input type="text" id="employeeIdInput" placeholder="Nhập mã NV..." />
+                    </div>
+                    <div class="action-buttons">
+                        <button id="clearFiltersBtn" class="clear-btn">Xóa bộ lọc</button>
+                        <button id="exportLogsBtn" class="export-btn">Xuất Excel</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="employee-log-table">
+                        <thead>
+                            <tr>
+                                <th>ID Nhật Ký</th>
+                                <th>Mã NV</th>
+                                <th>Hành Động</th>
+                                <th>Mô tả chi tiết</th>
+                                <th>Ngày Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeLogTableBody">
+                            <!-- Dữ liệu nhật ký sẽ được tải động từ C# -->
+                            <tr><td colspan="5" class="text-center text-gray-500 py-4">Đang tải dữ liệu nhật ký...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-controls">
+                    <button id="prevPageBtn" disabled>Trước</button>
+                    <span id="paginationInfo" class="pagination-info">Trang 1/1</span>
+                    <button id="nextPageBtn" disabled>Sau</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fullScreenLoadingOverlay = document.getElementById('fullScreenLoadingOverlay');
+        const customMessageBoxOverlay = document.getElementById('customMessageBoxOverlay');
+        const customMessageText = document.getElementById('customMessageText');
+        const closeCustomMessageBox = document.getElementById('closeCustomMessageBox');
+
+        function showFullScreenLoading() {
+            fullScreenLoadingOverlay.classList.add('active');
+        }
+
+        function hideFullScreenLoading() {
+            fullScreenLoadingOverlay.classList.remove('active');
+        }
+
+        /**
+         * Hiển thị một thông báo tùy chỉnh thay vì alert().
+         * @param {string} message - Nội dung thông báo.
+         */
+        function showCustomMessage(message) {
+            customMessageText.textContent = message;
+            customMessageBoxOverlay.classList.add('show');
+        }
+
+        closeCustomMessageBox.addEventListener('click', () => {
+            customMessageBoxOverlay.classList.remove('show');
+        });
+
+        // JavaScript để hiển thị ngày và giờ hiện tại
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('vi-VN', options);
+            }
+        }
+        updateCurrentDate();
+        setInterval(updateCurrentDate, 60000);
+
+        // JavaScript để xử lý dropdown người dùng
+        const userInfo = document.getElementById('userInfo');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userInfo && userDropdown) {
+            userInfo.addEventListener('click', (event) => {
+                event.stopPropagation();
+                userDropdown.classList.toggle('show');
+                // Close notification dropdown if open
+                if (notificationDropdown.classList.contains('show')) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+
+            document.body.addEventListener('click', (event) => {
+                if (userDropdown.classList.contains('show') && !userInfo.contains(event.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        if (changePasswordBtn) {
+            changePasswordBtn.addEventListener('click', () => {
+                showFullScreenLoading();
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({ type: 'ShowChangePasswordDialog' }));
+                } else {
+                    showCustomMessage('Chức năng đổi mật khẩu chỉ khả dụng trong ứng dụng Windows Forms.');
+                }
+                userDropdown.classList.remove('show');
+                setTimeout(hideFullScreenLoading, 1000);
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({ type: 'Logout' }));
+                } else {
+                    showCustomMessage('Chức năng đăng xuất chỉ khả dụng trong ứng dụng Windows Forms.');
+                }
+                userDropdown.classList.remove('show');
+            });
+        }
+
+        function setLoggedInUserName(name) {
+            const userNameSpan = document.getElementById('employeeName');
+            if (userNameSpan) {
+                userNameSpan.textContent = name;
+            }
+        }
+
+        function setLoggedInUserTitle(title) {
+            const userTitleSpan = document.getElementById('employeeTitle');
+            if (userTitleSpan) {
+                userTitleSpan.textContent = title;
+            }
+        }
+
+        // JavaScript để xử lý dropdown thông báo
+        const notificationBellIcon = document.getElementById('notificationBellIcon');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationCountBadge = document.getElementById('notificationCountBadge');
+        const notificationList = document.getElementById('notificationList');
+        const clearNotificationsBtn = document.getElementById('clearNotificationsBtn');
+
+        let activeNotifications = [];
+
+        function updateNotificationCount(count) {
+            if (notificationCountBadge) {
+                notificationCountBadge.textContent = count > 99 ? '99+' : count;
+                if (count > 0) {
+                    notificationCountBadge.style.display = 'block';
+                } else {
+                    notificationCountBadge.style.display = 'none';
+                }
+            }
+        }
+
+        function isSameDay(d1, d2) {
+            return d1.getFullYear() === d2.getFullYear() &&
+                   d1.getMonth() === d2.getMonth() &&
+                   d1.getDate() === d2.getDate();
+        }
+
+        function getTimeCategory(notificationDate) {
+            const now = new Date();
+            const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            yesterday.setHours(0, 0, 0, 0);
+
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            const normalizedNotificationDate = new Date(notificationDate.getFullYear(), notificationDate.getMonth(), notificationDate.getDate(), notificationDate.getHours(), notificationDate.getMinutes());
+
+            if (normalizedNotificationDate > oneHourAgo) {
+                return 'Mới';
+            } else if (isSameDay(normalizedNotificationDate, now)) {
+                return 'Hôm nay';
+            } else if (isSameDay(normalizedNotificationDate, yesterday)) {
+                return 'Hôm qua';
+            } else if (normalizedNotificationDate >= startOfWeek) {
+                return 'Tuần này';
+            } else if (normalizedNotificationDate >= startOfMonth) {
+                return 'Tháng này';
+            }
+            return 'Cũ hơn';
+        }
+
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            let interval = seconds / 31536000;
+            if (interval > 1) { return Math.floor(interval) + " năm trước"; }
+            interval = seconds / 2592000;
+            if (interval > 1) { return Math.floor(interval) + " tháng trước"; }
+            interval = seconds / 86400;
+            if (interval > 1) { return Math.floor(interval) + " ngày trước"; }
+            interval = seconds / 3600;
+            if (interval > 1) { return Math.floor(interval) + " giờ trước"; }
+            interval = seconds / 60;
+            if (interval > 1) { return Math.floor(interval) + " phút trước"; }
+            return Math.floor(seconds) + " giây trước";
+        }
+
+        function renderNotifications(notifications) {
+            notificationList.innerHTML = '';
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<li class="text-gray-400 text-sm p-2">Không có thông báo mới.</li>';
+                clearNotificationsBtn.style.display = 'none';
+                updateNotificationCount(0);
+                return;
+            }
+
+            clearNotificationsBtn.style.display = 'block';
+
+            notifications.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+            const groupedNotifications = {
+                'Mới': [], 'Hôm nay': [], 'Hôm qua': [], 'Tuần này': [], 'Tháng này': [], 'Cũ hơn': []
+            };
+
+            notifications.forEach(notif => {
+                const category = getTimeCategory(notif.date);
+                if (!groupedNotifications[category]) {
+                    groupedNotifications[category] = [];
+                }
+                groupedNotifications[category].push(notif);
+            });
+
+            const categoryOrder = ['Mới', 'Hôm nay', 'Hôm qua', 'Tuần này', 'Tháng này', 'Cũ hơn'];
+
+            categoryOrder.forEach(category => {
+                if (groupedNotifications[category].length > 0) {
+                    const categoryHeader = document.createElement('li');
+                    categoryHeader.classList.add('notification-dropdown-header');
+                    categoryHeader.innerHTML = `<h3>${category}</h3>`;
+                    notificationList.appendChild(categoryHeader);
+
+                    groupedNotifications[category].forEach(notif => {
+                        const notificationItem = document.createElement('li');
+                        notificationItem.classList.add('notification-item');
+                        notificationItem.dataset.id = notif.id;
+                        notificationItem.innerHTML = `
+                            <strong>${notif.title}:</strong> ${notif.message}
+                            <span class="time">${formatTimeAgo(notif.date)}</span>
+                        `;
+                        notificationList.appendChild(notificationItem);
+
+                        notificationItem.addEventListener('click', (event) => {
+                            event.stopPropagation();
+                            markNotificationAsRead(notif.id);
+                            notificationDropdown.classList.remove('show');
+                        });
+                    });
+                }
+            });
+            updateNotificationCount(notifications.length);
+        }
+
+        function markNotificationAsRead(id) {
+            activeNotifications = activeNotifications.filter(notif => notif.id !== id);
+            renderNotifications(activeNotifications);
+            showCustomMessage(`Thông báo "${id}" đã được đánh dấu là đã đọc.`);
+            // Optionally, close the dropdown after marking one as read
+            notificationDropdown.classList.remove('show');
+        }
+
+        if (notificationBellIcon) {
+            notificationBellIcon.addEventListener('click', (event) => {
+                event.stopPropagation();
+                notificationDropdown.classList.toggle('show');
+                if (userDropdown.classList.contains('show')) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        if (clearNotificationsBtn) {
+            clearNotificationsBtn.addEventListener('click', () => {
+                activeNotifications = [];
+                renderNotifications(activeNotifications);
+                notificationDropdown.classList.remove('show');
+                showCustomMessage('Tất cả thông báo đã được đánh dấu là đã đọc.');
+            });
+        }
+
+        document.body.addEventListener('click', (event) => {
+            if (userDropdown.classList.contains('show') && !userInfo.contains(event.target)) {
+                userDropdown.classList.remove('show');
+            }
+            if (notificationDropdown.classList.contains('show') && !notificationBellIcon.contains(event.target) && !notificationDropdown.contains(event.target)) {
+                notificationDropdown.classList.remove('show');
+            }
+        });
+
+        // --- Chức năng cho Bảng Tổng Hợp Nhật Ký Nhân Viên ---
+        const employeeLogTableBody = document.getElementById('employeeLogTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const startDateInput = document.getElementById('startDateInput');
+        const endDateInput = document.getElementById('endDateInput');
+        const actionTypeSelect = document.getElementById('actionTypeSelect');
+        const employeeIdInput = document.getElementById('employeeIdInput');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+        const exportLogsBtn = document.getElementById('exportLogsBtn');
+
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const paginationInfo = document.getElementById('paginationInfo');
+
+        let allEmployeeLogData = []; // Biến toàn cục để lưu trữ tất cả dữ liệu nhật ký
+        let filteredLogData = []; // Dữ liệu sau khi lọc
+        let currentPage = 1;
+        const rowsPerPage = 10; // Số hàng mỗi trang
+
+        /**
+         * Định dạng ngày giờ.
+         * @param {string} dateTimeString - Chuỗi ngày giờ.
+         * @returns {string} Ngày giờ đã định dạng.
+         */
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return '';
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('vi-VN', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        }
+
+        /**
+         * Hiển thị dữ liệu nhật ký nhân viên lên bảng với phân trang.
+         * @param {Array<Object>} logList - Mảng các đối tượng nhật ký đã lọc.
+         */
+        function renderEmployeeLogTable(logList) {
+            employeeLogTableBody.innerHTML = ''; // Xóa nội dung hiện có
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedLogs = logList.slice(startIndex, endIndex);
+
+            if (paginatedLogs && paginatedLogs.length > 0) {
+                paginatedLogs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${log.logId || ''}</td>
+                        <td>${log.employeeId || ''}</td>
+                        <td>${log.action || ''}</td>
+                        <td>${log.description || ''}</td>
+                        <td>${formatDateTime(log.actionDate)}</td>
+                    `;
+                    employeeLogTableBody.appendChild(row);
+                });
+            } else {
+                employeeLogTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">Không có dữ liệu nhật ký nhân viên phù hợp.</td></tr>';
+            }
+            updatePaginationControls(logList.length);
+        }
+
+        /**
+         * Cập nhật các nút điều khiển phân trang và thông tin trang.
+         * @param {number} totalRows - Tổng số hàng sau khi lọc.
+         */
+        function updatePaginationControls(totalRows) {
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+            paginationInfo.textContent = `Trang ${currentPage}/${totalPages === 0 ? 1 : totalPages}`;
+
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        /**
+         * Áp dụng tất cả các bộ lọc và tìm kiếm.
+         */
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+            const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+            const selectedActionType = actionTypeSelect.value.toLowerCase();
+            const employeeIdSearch = employeeIdInput.value.toLowerCase();
+
+            filteredLogData = allEmployeeLogData.filter(log => {
+                // Search term filter
+                const matchesSearchTerm = Object.values(log).some(value =>
+                    String(value).toLowerCase().includes(searchTerm)
+                );
+
+                // Date range filter
+                const logDate = new Date(log.actionDate);
+                const matchesDateRange = (!startDate || logDate >= startDate) &&
+                                         (!endDate || logDate <= endDate);
+
+                // Action type filter
+                const matchesActionType = selectedActionType === '' ||
+                                          String(log.action).toLowerCase() === selectedActionType;
+
+                // Employee ID filter
+                const matchesEmployeeId = employeeIdSearch === '' ||
+                                          String(log.employeeId).toLowerCase().includes(employeeIdSearch);
+
+                return matchesSearchTerm && matchesDateRange && matchesActionType && matchesEmployeeId;
+            });
+
+            currentPage = 1; // Reset to first page after filtering
+            renderEmployeeLogTable(filteredLogData);
+        }
+
+        // Gắn sự kiện cho các bộ lọc
+        searchInput.addEventListener('input', applyFilters);
+        startDateInput.addEventListener('change', applyFilters);
+        endDateInput.addEventListener('change', applyFilters);
+        actionTypeSelect.addEventListener('change', applyFilters);
+        employeeIdInput.addEventListener('input', applyFilters);
+
+        // Nút xóa bộ lọc
+        clearFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            startDateInput.value = '';
+            endDateInput.value = '';
+            actionTypeSelect.value = '';
+            employeeIdInput.value = '';
+            applyFilters(); // Re-apply filters to show all data
+            showCustomMessage('Đã xóa tất cả bộ lọc.');
+        });
+
+        // Nút xuất Excel (mô phỏng)
+        exportLogsBtn.addEventListener('click', () => {
+            showCustomMessage('Chức năng xuất Excel đang được phát triển.');
+            // In a real application, you would send filteredLogData to a backend endpoint for export.
+        });
+
+        // Phân trang
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderEmployeeLogTable(filteredLogData);
+            }
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredLogData.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderEmployeeLogTable(filteredLogData);
+            }
+        });
+
+        /**
+         * Điền các tùy chọn cho dropdown loại hành động.
+         * @param {Array<Object>} logs - Dữ liệu nhật ký để trích xuất các loại hành động duy nhất.
+         */
+        function populateActionTypeSelect(logs) {
+            const actions = new Set(logs.map(log => log.action));
+            actionTypeSelect.innerHTML = '<option value="">Tất cả</option>'; // Default option
+            actions.forEach(action => {
+                if (action) { // Ensure action is not null/empty
+                    const option = document.createElement('option');
+                    option.value = action.toLowerCase();
+                    option.textContent = action;
+                    actionTypeSelect.appendChild(option);
+                }
+            });
+        }
+
+        // Lắng nghe thông báo từ C#
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', event => {
+                const message = JSON.parse(event.data);
+                if (message.type === 'employeeLogListData') {
+                    allEmployeeLogData = message.data; // Lưu trữ dữ liệu gốc
+                    populateActionTypeSelect(allEmployeeLogData); // Populate action types
+                    applyFilters(); // Áp dụng bộ lọc ban đầu (hiển thị tất cả)
+                    hideFullScreenLoading();
+                } else if (message.type === 'loggedInUserName') {
+                    setLoggedInUserName(message.name);
+                    setLoggedInUserTitle(message.title);
+                }
+            });
+        }
+
+        // Yêu cầu C# cung cấp dữ liệu ban đầu khi trang tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            showFullScreenLoading();
+
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({ type: 'requestEmployeeLogListData' })); // Yêu cầu dữ liệu nhật ký
+                window.chrome.webview.postMessage(JSON.stringify({ type: 'requestLoggedInUserName' }));
+            } else {
+                // Dữ liệu giả lập cho môi trường trình duyệt nếu không có WebView2
+                allEmployeeLogData = [
+                    { logId: 1, employeeId: 'NV001', action: 'Login', description: 'Đăng nhập thành công vào hệ thống.', actionDate: '2025-07-20T08:00:00Z' },
+                    { logId: 2, employeeId: 'NV002', action: 'Create Student', description: 'Tạo hồ sơ học viên mới: Nguyễn Văn A.', actionDate: '2025-07-20T09:15:00Z' },
+                    { logId: 3, employeeId: 'NV001', action: 'Update Tuition', description: 'Cập nhật học phí cho học viên ID 101.', actionDate: '2025-07-20T10:30:00Z' },
+                    { logId: 4, employeeId: 'NV003', action: 'Logout', description: 'Đăng xuất khỏi hệ thống.', actionDate: '2025-07-20T11:00:00Z' },
+                    { logId: 5, employeeId: 'NV002', action: 'Delete Class', description: 'Xóa lớp học ID 205.', actionDate: '2025-07-21T13:45:00Z' },
+                    { logId: 6, employeeId: 'NV001', action: 'Login', description: 'Đăng nhập thành công vào hệ thống.', actionDate: '2025-07-21T14:00:00Z' },
+                    { logId: 7, employeeId: 'NV004', action: 'View Report', description: 'Xem báo cáo doanh thu tháng 6.', actionDate: '2025-07-21T15:20:00Z' },
+                    { logId: 8, employeeId: 'NV003', action: 'Create Employee', description: 'Thêm nhân viên mới: Lê Thị C.', actionDate: '2025-07-22T09:00:00Z' },
+                    { logId: 9, employeeId: 'NV001', action: 'Update Student', description: 'Cập nhật thông tin liên hệ học viên ID 102.', actionDate: '2025-07-22T10:00:00Z' },
+                    { logId: 10, employeeId: 'NV002', action: 'Login', description: 'Đăng nhập thành công vào hệ thống.', actionDate: '2025-07-22T11:00:00Z' },
+                    { logId: 11, employeeId: 'NV001', action: 'Create Student', description: 'Tạo hồ sơ học viên mới: Trần Văn B.', actionDate: '2025-07-19T10:00:00Z' },
+                    { logId: 12, employeeId: 'NV003', action: 'Update Employee', description: 'Cập nhật chức vụ nhân viên NV004.', actionDate: '2025-07-18T14:30:00Z' },
+                    { logId: 13, employeeId: 'NV004', action: 'Login', description: 'Đăng nhập thành công vào hệ thống.', actionDate: '2025-07-17T08:30:00Z' },
+                    { logId: 14, employeeId: 'NV001', action: 'Delete Student', description: 'Xóa học viên ID 103.', actionDate: '2025-07-16T16:00:00Z' },
+                    { logId: 15, employeeId: 'NV002', action: 'View Report', description: 'Xem báo cáo học phí.', actionDate: '2025-07-15T09:00:00Z' },
+                    { logId: 16, employeeId: 'NV003', action: 'Login', description: 'Đăng nhập thất bại.', actionDate: '2025-07-14T07:00:00Z' },
+                    { logId: 17, employeeId: 'NV001', action: 'Create Class', description: 'Tạo lớp học mới: IELTS Cấp tốc.', actionDate: '2025-07-13T11:00:00Z' },
+                    { logId: 18, employeeId: 'NV004', action: 'Update Class', description: 'Cập nhật sĩ số lớp học ID 201.', actionDate: '2025-07-12T10:00:00Z' },
+                    { logId: 19, employeeId: 'NV002', action: 'Logout', description: 'Đăng xuất khỏi hệ thống.', actionDate: '2025-07-11T17:00:00Z' },
+                    { logId: 20, employeeId: 'NV001', action: 'Login', description: 'Đăng nhập thành công vào hệ thống.', actionDate: '2025-07-10T08:00:00Z' },
+                ];
+                populateActionTypeSelect(allEmployeeLogData);
+                applyFilters(); // Áp dụng bộ lọc ban đầu (hiển thị tất cả)
+                hideFullScreenLoading();
+            }
+
+            // Initial mock notifications with Date objects
+            activeNotifications = [
+                { id: 'notif1', title: 'Thông báo 1', message: 'Học viên mới đã đăng ký.', date: new Date(Date.now() - 30 * 60 * 1000) }, // 30 mins ago (Mới)
+                { id: 'notif2', title: 'Thông báo 2', message: 'Lịch học sắp tới.', date: new Date(Date.now() - 5 * 60 * 60 * 1000) }, // 5 hours ago (Hôm nay)
+                { id: 'notif3', title: 'Thông báo 3', message: 'Yêu cầu hỗ trợ mới.', date: new Date(Date.now() - 24 * 60 * 60 * 1000 - 2 * 60 * 60 * 1000) }, // Yesterday (Hôm qua)
+                { id: 'notif4', title: 'Thông báo 4', message: 'Khóa học mới được thêm.', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) }, // 3 days ago (Tuần này)
+                { id: 'notif5', title: 'Thông báo 5', message: 'Cập nhật hệ thống.', date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) }, // 15 days ago (Tháng này)
+                { id: 'notif6', title: 'Thông báo 6', message: 'Báo cáo hàng tháng đã sẵn sàng.', date: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000) }, // 40 days ago (Cũ hơn)
+            ];
+            renderNotifications(activeNotifications); // Render initial notifications
+        });
+    </script>
+</body>
+</html>
