@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chấm Công Nhân Viên - Trung Tâm Ngoại Ngữ 68</title>
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tải font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Liên kết Font Awesome để sử dụng các biểu tượng -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Thiết lập font và màu nền chung - Nhất quán với các trang khác */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Màu nền chính */
+            color: #333333; /* Màu chữ mặc định */
+            min-height: 100vh;
+            overflow-y: auto; /* Cho phép cuộn dọc toàn bộ trang */
+        }
+
+        /* Ẩn các nút mũi tên lên/xuống (spinners) cho input type="time" */
+        input[type="time"]::-webkit-outer-spin-button,
+        input[type="time"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="time"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+
+        /* Khu vực nội dung chính */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff; /* Nền sáng hơn cho nội dung chính */
+            width: 100%; /* Ensure main content takes full width */
+        }
+
+        /* Header - Đồng bộ với StudentInfo.html và EditSalaryTable.html */
+        .header {
+            background-color: #2d3748;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-grow: 1;
+            justify-content: flex-start;
+        }
+
+        .header-logo img {
+            height: 100px;
+            width: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .header-date {
+            font-size: 1rem;
+            color: #a0aec0;
+            white-space: nowrap;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        /* Notification specific styles - Nhất quán với Log.html */
+        .header-notification-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icons svg {
+            width: 24px;
+            height: 24px;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .header-icons svg:hover {
+            color: #ffffff;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            line-height: 1;
+            min-width: 18px;
+            text-align: center;
+            box-shadow: 0 0 0 2px #2d3748;
+            display: none;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background-color: #2d3748;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            min-width: 250px;
+            max-width: 350px;
+            max-height: 200px; /* Scrollable list */
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            padding: 10px 0;
+            margin-top: 5px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+
+        .notification-dropdown.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification-dropdown-header { /* Renamed from notification-category-header to match Log.html */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px 10px;
+            border-bottom: 1px solid #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .notification-dropdown-header h3 {
+            color: #e2e8f0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .notification-dropdown-header button {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .notification-dropdown-header button:hover {
+            color: #ffffff;
+        }
+
+        .notification-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notification-list li {
+            color: #e2e8f0;
+            padding: 10px 15px;
+            border-bottom: 1px solid #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .notification-list li:last-child {
+            border-bottom: none;
+        }
+
+        .notification-list li:hover {
+            background-color: #4a5568;
+        }
+
+        .notification-list li strong {
+            color: #ffffff;
+        }
+
+        .notification-list li .time {
+            display: block;
+            font-size: 0.75rem;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        .notification-dropdown .no-notifications {
+            padding: 10px 15px;
+            color: #a0aec0;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .notification-dropdown .mark-all-read-btn {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            padding: 10px 15px;
+            border: none;
+            border-top: 1px solid #667eea;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease-in-out;
+            border-radius: 0 0 8px 8px;
+            margin-top: 5px;
+        }
+
+        .notification-dropdown .mark-all-read-btn:hover {
+            background-color: #667eea;
+            color: #ffffff;
+        }
+
+        /* User Info and Dropdown - Đồng bộ với StudentInfo.html */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            cursor: pointer;
+            padding: 5px 0;
+        }
+
+        .user-info img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #4299e1;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .user-details .user-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .user-details .user-title {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background-color: #2d3748;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            min-width: 160px;
+            display: none;
+            flex-direction: column;
+            padding: 10px 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+
+        .user-dropdown.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .user-dropdown button {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            padding: 10px 15px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            font-size: 0.95rem;
+        }
+
+        .user-dropdown button:hover {
+            background-color: #4a5568;
+            color: #ffffff;
+        }
+
+        /* Dashboard Body - Đồng bộ với StudentInfo.html */
+        .timekeeping-container {
+            padding: 30px;
+            flex-grow: 1;
+            background-color: #ffffff; /* Đảm bảo nền trắng cho nội dung chính */
+        }
+
+        .timekeeping-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        /* Card styles - Đồng bộ với StudentInfo.html */
+        .card {
+            background-color: #fdfdfd;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 25px;
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 12px;
+        }
+
+        /* Form elements - Đồng bộ với StudentInfo.html */
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555555;
+            font-size: 0.95em;
+        }
+
+        input[type="date"],
+        input[type="time"],
+        input[type="text"],
+        select,
+        textarea { /* Added textarea */
+            width: 100%;
+            background-color: #fcfcfc;
+            color: #333333;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1em;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus { /* Added textarea */
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Tab Navigation Styles - Cải tiến */
+        .tab-navigation {
+            display: flex;
+            margin-bottom: 0; /* Loại bỏ margin-bottom để tab content liền mạch */
+            border-bottom: 2px solid #e0e0e0;
+            gap: 0; /* Loại bỏ gap giữa các nút tab */
+            overflow-x: auto; /* Cho phép cuộn ngang nếu tab quá nhiều */
+            overflow-y: hidden; /* Ẩn thanh cuộn dọc */
+            -webkit-overflow-scrolling: touch;
+            position: relative; /* Để border-bottom của tab active có thể nằm trên */
+            z-index: 1; /* Đảm bảo tab navigation nằm trên tab content */
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #666666;
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            border-bottom: none; /* Loại bỏ border-bottom mặc định */
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0; /* Ngăn nút co lại */
+            margin-right: -1px; /* Để các border của nút liền mạch */
+        }
+
+        .tab-button:first-child {
+            margin-left: 0;
+        }
+
+        .tab-button:hover {
+            background-color: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .tab-button.active {
+            background-color: #ffffff;
+            color: #2d3748;
+            border-color: #f39c12; /* Màu cam cho border active */
+            border-bottom: 2px solid #ffffff; /* Tạo hiệu ứng gạch chân */
+            transform: translateY(2px); /* Nâng nhẹ nút lên */
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+            z-index: 2; /* Đảm bảo nút active nằm trên các nút khác */
+        }
+
+        /* Tab Content Styles - Cải tiến */
+        .tab-content {
+            display: none;
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 0 0 10px 10px; /* Chỉ bo góc dưới */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-top: -2px; /* Kéo lên để liền mạch với tab navigation */
+            position: relative;
+            z-index: 1;
+            border: 1px solid #e0e0e0; /* Thêm border để khớp với card */
+            border-top: none; /* Loại bỏ border-top để liền mạch với tab navigation */
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table styles - Đồng bộ với StudentInfo.html */
+        .table-container {
+            overflow-x: auto;
+            max-height: 65vh; /* Tăng chiều cao tối đa để phù hợp với các trang khác */
+            overflow-y: auto; /* Cho phép cuộn dọc nội dung bảng */
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px; /* Tăng min-width để chứa đủ các cột */
+        }
+
+        th, td {
+            padding: 15px 20px; /* Tăng padding để đồng bộ */
+            text-align: left;
+            border: 1px solid #e9ecef;
+            color: #343a40;
+            white-space: nowrap;
+            font-size: 0.95em; /* Tăng font size để đồng bộ */
+        }
+
+        th {
+            background-color: #e9ecef;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            color: #495057;
+            text-transform: uppercase; /* Đồng bộ uppercase */
+            letter-spacing: 0.05em; /* Đồng bộ letter spacing */
+        }
+
+        tbody tr:nth-child(even) { /* Thêm zebra striping */
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:hover {
+            background-color: #e2f0fe; /* Đồng bộ hover effect */
+            cursor: pointer;
+        }
+
+        /* Input and button styles within tables */
+        input[type="date"],
+        input[type="time"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px 12px; /* Tăng padding */
+            border: 1px solid #ced4da; /* Đồng bộ border */
+            border-radius: 6px; /* Đồng bộ border-radius */
+            box-sizing: border-box;
+            font-size: 0.95em; /* Tăng font size */
+            background-color: #fcfcfc;
+            color: #333333;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .action-buttons button {
+            padding: 8px 14px; /* Đồng bộ padding */
+            font-size: 0.9em;
+            border: none;
+            border-radius: 6px; /* Đồng bộ border-radius */
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .action-buttons button.save-btn {
+            background-color: #28a745; /* Đồng bộ màu xanh lá */
+            color: white;
+        }
+
+        .action-buttons button.save-btn:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
+
+        .action-buttons button.view-btn {
+            background-color: #007bff; /* Đồng bộ màu xanh */
+            color: white;
+        }
+
+        .action-buttons button.view-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .action-buttons button.edit-btn {
+            background-color: #ffc107; /* Màu vàng cho Edit */
+            color: #333;
+        }
+        .action-buttons button.edit-btn:hover {
+            background-color: #e0a800;
+            transform: translateY(-1px);
+        }
+
+        .action-buttons button.delete-btn {
+            background-color: #dc3545; /* Màu đỏ cho Delete */
+            color: white;
+        }
+        .action-buttons button.delete-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .action-buttons button.cancel-btn { /* New style for cancel button */
+            background-color: #6c757d;
+            color: white;
+        }
+        .action-buttons button.cancel-btn:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+
+
+        .form-actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .form-actions button {
+            padding: 12px 25px;
+            font-size: 1.05em;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #4299e1; /* Màu xanh cho Save */
+            color: white;
+        }
+
+        .form-actions button:hover {
+            background-color: #3182ce;
+            transform: translateY(-1px);
+        }
+
+        /* Full-screen Loading Overlay - Nhất quán */
+        .full-screen-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001; /* Đảm bảo nằm trên cùng */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .full-screen-loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .full-screen-spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid #fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom Message Box Overlay for general messages */
+        .custom-message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .custom-message-box-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-message-box-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            color: #333333;
+        }
+
+        .custom-message-box-content p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .custom-message-box-content button {
+            background-color: #4299e1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .custom-message-box-content button:hover {
+            background-color: #3182ce;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10002; /* Higher than loading overlay */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 600px;
+            color: #333333;
+            position: relative;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 10px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .modal-close-button {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close-button:hover {
+            color: #333;
+        }
+
+        .modal-body .form-group {
+            margin-bottom: 15px;
+        }
+
+        .modal-footer {
+            margin-top: 30px;
+            text-align: right;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 20px;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .modal-footer .save-modal-btn {
+            background-color: #28a745;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .modal-footer .save-modal-btn:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
+
+        .modal-footer .cancel-modal-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .modal-footer .cancel-modal-btn:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+
+
+        /* Điều chỉnh responsive */
+        @media (max-width: 1024px) {
+            .header-date {
+                display: none;
+            }
+            .timekeeping-title { font-size: 1.8rem; }
+            .card h2 { font-size: 1.5em; }
+            .tab-button { font-size: 1em; padding: 10px 15px; }
+            table th, table td { padding: 12px 15px; }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .main-content {
+                padding: 15px;
+                border-radius: 0;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 10px 15px;
+            }
+
+            .header-left {
+                width: 100%;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .header-title { font-size: 1.5rem; }
+            .header-logo img { height: 80px; width: 80px; }
+            .user-info { margin-top: 10px; }
+            .user-details { display: none; }
+
+            .timekeeping-container {
+                padding: 15px;
+            }
+
+            .timekeeping-title {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .card h2 {
+                font-size: 1.3em;
+                margin-bottom: 15px;
+            }
+
+            .tab-navigation {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 5px; /* Thêm gap giữa các nút tab khi wrap */
+            }
+
+            .tab-button {
+                flex-basis: calc(50% - 5px); /* Hai nút trên một hàng */
+                margin-right: 0; /* Loại bỏ margin-right khi wrap */
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 0.85em;
+            }
+
+            table {
+                min-width: 700px; /* Giữ min-width để tránh bảng bị co quá nhỏ */
+            }
+            .form-actions button {
+                width: 100%;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body data-user-role="default">
+    <!-- Full-screen Loading Overlay -->
+    <div id="fullScreenLoadingOverlay" class="full-screen-loading-overlay">
+        <div class="full-screen-spinner"></div>
+    </div>
+
+    <!-- Custom Message Box Overlay for general messages -->
+    <div id="customMessageBoxOverlay" class="custom-message-box-overlay">
+        <div class="custom-message-box-content">
+            <p id="customMessageText"></p>
+            <button id="closeCustomMessageBox">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit Work Shift -->
+    <div id="workShiftModalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="workShiftModalTitle">Thêm Ca Làm Việc</h3>
+                <button class="modal-close-button" id="closeWorkShiftModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="workShiftForm">
+                    <input type="hidden" id="workShiftId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label for="modalEmployeeSelect">Nhân viên:</label>
+                            <select id="modalEmployeeSelect" class="w-full" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalShiftDate">Ngày:</label>
+                            <input type="date" id="modalShiftDate" class="w-full" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalShiftName">Ca làm việc:</label>
+                            <input type="text" id="modalShiftName" class="w-full" placeholder="Ví dụ: Ca sáng, Hành chính" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalStartTime">Giờ bắt đầu:</label>
+                            <input type="time" id="modalStartTime" class="w-full" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalEndTime">Giờ kết thúc:</label>
+                            <input type="time" id="modalEndTime" class="w-full" required>
+                        </div>
+                        <div class="form-group md:col-span-2">
+                            <label for="modalNote">Ghi chú:</label>
+                            <input type="text" id="modalNote" class="w-full" placeholder="Ghi chú (nếu có)">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-modal-btn" id="cancelWorkShiftModal">Hủy</button>
+                <button type="submit" class="save-modal-btn" id="saveWorkShiftBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Modal for Mark All Absent -->
+    <div id="markAllAbsentModalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Đánh Dấu Nghỉ Tất Cả Nhân Viên</h3>
+                <button class="modal-close-button" id="closeMarkAllAbsentModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="absentDateInput">Ngày nghỉ:</label>
+                    <input type="date" id="absentDateInput" class="w-full" required>
+                </div>
+                <div class="form-group">
+                    <label for="absentNoteInput">Ghi chú (Lý do nghỉ):</label>
+                    <textarea id="absentNoteInput" class="w-full" rows="3" placeholder="Ví dụ: Nghỉ lễ, Nghỉ ốm đồng loạt"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-modal-btn" id="cancelMarkAllAbsentModal">Hủy</button>
+                <button type="submit" class="save-modal-btn" id="confirmMarkAllAbsentBtn">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Khu vực nội dung chính -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="header-logo">
+                    <!-- Placeholder image for logo. Replace with your actual logo URL. -->
+                    <img src="https://placehold.co/100x100/1a202c/e2e8f0?text=LOGO" alt="Trung Tâm Ngoại Ngữ 68">
+                </div>
+                <div class="header-title">Trung Tâm Ngoại Ngữ 68</div>
+            </div>
+            <div class="header-right">
+                <div id="currentDate" class="header-date"></div>
+                <div class="header-notification-wrapper">
+                    <div class="header-icons" id="notificationBellIcon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
+                        <div class="notification-badge" id="notificationCountBadge">0</div>
+                    </div>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-dropdown-header">
+                            <h3>Thông báo</h3>
+                            <button id="clearNotificationsBtn">Xóa tất cả</button>
+                        </div>
+                        <ul id="notificationList" class="notification-list">
+                            <!-- Notifications will be rendered here -->
+                            <li class="text-gray-400 text-sm p-2">Không có thông báo mới.</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Thông tin người dùng và Dropdown -->
+                <div class="user-info" id="userInfo">
+                    <img src="https://placehold.co/36x36/1a202c/e2e8f0?text=U" alt="User Avatar" />
+                    <div class="user-details">
+                        <span class="user-name" id="employeeName">Đang tải...</span>
+                        <span class="user-title" id="employeeTitle"></span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-chevron-down" style="cursor: pointer; color: #a0aec0;">
+                        <path d="m6 9 6 6 6-6" />
+                    </svg>
+                    <div class="user-dropdown" id="userDropdown">
+                        <button id="changePasswordBtn">Đổi Mật Khẩu</button>
+                        <button id="logoutBtn">Đăng Xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nội dung chính của trang Chấm Công -->
+        <div class="timekeeping-container">
+            <h1 class="timekeeping-title">Chấm Công Nhân Viên</h1>
+
+            <!-- Bộ lọc thời gian -->
+            <div class="card">
+                <h2>Lọc Dữ Liệu</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+                    <div>
+                        <label for="startDateFilter" class="block text-sm font-medium text-gray-700 mb-2">Từ ngày:</label>
+                        <input type="date" id="startDateFilter" class="mt-1 block w-full">
+                    </div>
+                    <div>
+                        <label for="endDateFilter" class="block text-sm font-medium text-gray-700 mb-2">Đến ngày:</label>
+                        <input type="date" id="endDateFilter" class="mt-1 block w-full">
+                    </div>
+                    <!-- Nút "Áp dụng bộ lọc" đã được xóa -->
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-button active" data-tab="machineTimekeeping">Chấm Công Máy Chấm Công</button>
+                <button class="tab-button" data-tab="shiftTimekeeping">Chấm Công Theo Ca Dạy</button>
+                <button class="tab-button" data-tab="workSchedule">Lịch Làm Việc</button>
+                <button class="tab-button" data-tab="manageWorkSchedule">Quản Lý Lịch Làm Việc</button>
+            </div>
+
+            <!-- Tab Content: Chấm Công Máy Chấm Công -->
+            <div id="machineTimekeepingTab" class="tab-content active">
+                <div class="editable-section">
+                    <h2>Dữ Liệu Chấm Công Máy</h2>
+                    <div class="table-container">
+                        <table id="machineTimekeepingTable">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Giờ vào</th>
+                                    <th>Giờ ra</th>
+                                    <th>Tổng giờ làm</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody id="machineTimekeepingTableBody">
+                                <!-- Dữ liệu chấm công máy sẽ được tải động -->
+                                <tr><td colspan="6" class="text-center text-gray-500 py-4">Đang tải dữ liệu chấm công máy...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Chấm Công Theo Ca Dạy -->
+            <div id="shiftTimekeepingTab" class="tab-content">
+                <div class="editable-section">
+                    <h2>Chấm Công Theo Ca Dạy Thực Tế</h2>
+                    <div class="table-container">
+                        <table id="shiftTimekeepingTable">
+                            <thead>
+                                <tr>
+                                    <th>ID Ca Dạy</th>
+                                    <th>Ngày dạy</th>
+                                    <th>Giờ bắt đầu</th>
+                                    <th>Giờ kết thúc</th>
+                                    <th>Lớp học</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shiftTimekeepingTableBody">
+                                <!-- Dữ liệu ca dạy sẽ được tải động -->
+                                <tr><td colspan="7" class="text-center text-gray-500 py-4">Đang tải dữ liệu ca dạy...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="form-actions mt-5">
+                    <button type="button" id="saveShiftTimekeepingBtn">Lưu Chấm Công Ca Dạy</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Lịch Làm Việc (View All) -->
+            <div id="workScheduleTab" class="tab-content">
+                <div class="editable-section">
+                    <h2>Lịch Làm Việc Của Nhân Viên</h2>
+                    <div class="card mb-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label for="wsStartDateFilter" class="block text-sm font-medium text-gray-700 mb-2">Từ ngày:</label>
+                                <input type="date" id="wsStartDateFilter" class="mt-1 block w-full">
+                            </div>
+                            <div>
+                                <label for="wsEndDateFilter" class="block text-sm font-medium text-gray-700 mb-2">Đến ngày:</label>
+                                <input type="date" id="wsEndDateFilter" class="mt-1 block w-full">
+                            </div>
+                            <div>
+                                <label for="employeeFilter" class="block text-sm font-medium text-gray-700 mb-2">Nhân viên:</label>
+                                <select id="employeeFilter" class="mt-1 block w-full">
+                                    <option value="">Tất cả nhân viên</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="departmentFilter" class="block text-sm font-medium text-gray-700 mb-2">Bộ phận:</label>
+                                <select id="departmentFilter" class="mt-1 block w-full">
+                                    <option value="">Tất cả bộ phận</option>
+                                </select>
+                            </div>
+                            <!-- Nút "Áp dụng bộ lọc" đã được xóa -->
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="workScheduleTable">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Nhân viên</th>
+                                    <th>Bộ phận</th>
+                                    <th>Ca làm việc</th>
+                                    <th>Giờ bắt đầu</th>
+                                    <th>Giờ kết thúc</th>
+                                    <th>Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workScheduleTableBody">
+                                <!-- Dữ liệu lịch làm việc sẽ được tải động -->
+                                <tr><td colspan="7" class="text-center text-gray-500 py-4">Đang tải dữ liệu lịch làm việc...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Quản Lý Lịch Làm Việc (Manager View) -->
+            <div id="manageWorkScheduleTab" class="tab-content">
+                <div class="editable-section">
+                    <h2>Quản Lý Lịch Làm Việc Của Nhân Viên</h2>
+                    <div class="card mb-5">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="manageWSEmployeeFilter" class="block text-sm font-medium text-gray-700 mb-2">Chọn Nhân viên:</label>
+                                <select id="manageWSEmployeeFilter" class="mt-1 block w-full">
+                                    <option value="">Chọn nhân viên</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="manageWSStartDateFilter" class="block text-sm font-medium text-gray-700 mb-2">Từ ngày:</label>
+                                <input type="date" id="manageWSStartDateFilter" class="mt-1 block w-full">
+                            </div>
+                            <div>
+                                <label for="manageWSEndDateFilter" class="block text-sm font-medium text-gray-700 mb-2">Đến ngày:</label>
+                                <input type="date" id="manageWSEndDateFilter" class="mt-1 block w-full">
+                            </div>
+                        </div>
+                        <div class="flex justify-center mt-6 gap-4">
+                            <!-- Nút "Áp dụng bộ lọc" đã được xóa -->
+                            <button id="addWorkShiftBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-sm">Thêm Ca Làm Việc</button>
+                            <button id="markAllAbsentBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-md shadow-sm">Đánh Dấu Nghỉ Tất Cả</button>
+                            <button id="updateWorkShiftBtn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-md shadow-sm">Cập nhật Lịch Làm Việc</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="manageWorkScheduleTable">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Ca làm việc</th>
+                                    <th>Giờ bắt đầu</th>
+                                    <th>Giờ kết thúc</th>
+                                    <th>Ghi chú</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="manageWorkScheduleTableBody">
+                                <!-- Dữ liệu lịch làm việc của nhân viên sẽ được tải động -->
+                                <tr><td colspan="6" class="text-center text-gray-500 py-4">Chọn nhân viên để xem và quản lý lịch làm việc.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Lấy các phần tử DOM cần thiết
+        const fullScreenLoadingOverlay = document.getElementById('fullScreenLoadingOverlay');
+        const customMessageBoxOverlay = document.getElementById('customMessageBoxOverlay');
+        const customMessageText = document.getElementById('customMessageText');
+        const closeCustomMessageBox = document.getElementById('closeCustomMessageBox');
+
+        const startDateFilter = document.getElementById('startDateFilter'); // For Machine/Shift Timekeeping
+        const endDateFilter = document.getElementById('endDateFilter');   // For Machine/Shift Timekeeping
+
+        const wsStartDateFilter = document.getElementById('wsStartDateFilter'); // For Work Schedule (View All)
+        const wsEndDateFilter = document.getElementById('wsEndDateFilter');     // For Work Schedule (View All)
+        const employeeFilter = document.getElementById('employeeFilter');       // For Work Schedule (View All)
+        const departmentFilter = document.getElementById('departmentFilter');   // For Work Schedule (View All)
+
+        const manageWSEmployeeFilter = document.getElementById('manageWSEmployeeFilter'); // For Manage Work Schedule
+        const manageWSStartDateFilter = document.getElementById('manageWSStartDateFilter'); // For Manage Work Schedule
+        const manageWSEndDateFilter = document.getElementById('manageWSEndDateFilter');     // For Manage Work Schedule
+        const addWorkShiftBtn = document.getElementById('addWorkShiftBtn');
+        const updateWorkShiftBtn = document.getElementById('updateWorkShiftBtn'); // New button for updating work shifts
+        const markAllAbsentBtn = document.getElementById('markAllAbsentBtn'); // NEW: Mark All Absent button
+
+        const machineTimekeepingTableBody = document.getElementById('machineTimekeepingTableBody');
+        const shiftTimekeepingTableBody = document.getElementById('shiftTimekeepingTableBody');
+        const saveShiftTimekeepingBtn = document.getElementById('saveShiftTimekeepingBtn');
+        const workScheduleTableBody = document.getElementById('workScheduleTableBody');
+        const manageWorkScheduleTableBody = document.getElementById('manageWorkScheduleTableBody');
+
+        // Modal elements
+        const workShiftModalOverlay = document.getElementById('workShiftModalOverlay');
+        const workShiftModalTitle = document.getElementById('workShiftModalTitle');
+        const closeWorkShiftModalBtn = document.getElementById('closeWorkShiftModalBtn');
+        const cancelWorkShiftModal = document.getElementById('cancelWorkShiftModal');
+        const saveWorkShiftBtn = document.getElementById('saveWorkShiftBtn');
+        const workShiftForm = document.getElementById('workShiftForm');
+        const workShiftIdInput = document.getElementById('workShiftId');
+        const modalEmployeeSelect = document.getElementById('modalEmployeeSelect');
+        const modalShiftDateInput = document.getElementById('modalShiftDate');
+        const modalShiftNameInput = document.getElementById('modalShiftName');
+        const modalStartTimeInput = document.getElementById('modalStartTime');
+        const modalEndTimeInput = document.getElementById('modalEndTime');
+        const modalNoteInput = document.getElementById('modalNote');
+
+        // NEW: Mark All Absent Modal elements
+        const markAllAbsentModalOverlay = document.getElementById('markAllAbsentModalOverlay');
+        const closeMarkAllAbsentModalBtn = document.getElementById('closeMarkAllAbsentModalBtn');
+        const cancelMarkAllAbsentModal = document.getElementById('cancelMarkAllAbsentModal');
+        const confirmMarkAllAbsentBtn = document.getElementById('confirmMarkAllAbsentBtn');
+        const absentDateInput = document.getElementById('absentDateInput');
+        const absentNoteInput = document.getElementById('absentNoteInput');
+
+
+        let currentEmployeeId = null; // ID nhân viên hiện tại, sẽ được thiết lập khi người dùng đăng nhập
+        let currentMachineTimekeepingData = []; // Dữ liệu chấm công máy
+        let currentShiftTimekeepingData = []; // Dữ liệu chấm công theo ca
+        let currentWorkScheduleData = []; // Dữ liệu lịch làm việc (view all)
+        let currentManageWorkScheduleData = []; // Dữ liệu lịch làm việc cho tab quản lý
+
+        let allEmployees = []; // Danh sách tất cả nhân viên cho dropdown
+        let allDepartments = []; // Danh sách tất cả bộ phận cho dropdown
+
+        // NEW: Centralized simulated work schedule data for consistency
+        let allSimulatedWorkScheduleData = [
+            // Added data for 2025-07-13 and 2025-07-14
+            { shiftId: 100, employeeId: 1, date: '2025-07-13', shiftName: 'Ca sáng', startTime: '08:00', endTime: '12:00', note: 'Học bù', employeeName: 'Nguyễn Văn A', departmentId: 101, departmentName: 'Giáo vụ' },
+            { shiftId: 99, employeeId: 2, date: '2025-07-13', shiftName: 'Ca hành chính', startTime: '08:30', endTime: '17:30', note: '', employeeName: 'Trần Thị B', departmentId: 102, departmentName: 'Kế toán' },
+            { shiftId: 98, employeeId: 1, date: '2025-07-14', shiftName: 'Ca chiều', startTime: '13:00', endTime: '17:00', note: '', employeeName: 'Nguyễn Văn A', departmentId: 101, departmentName: 'Giáo vụ' },
+            { shiftId: 97, employeeId: 3, date: '2025-07-14', shiftName: 'Ca sáng', startTime: '09:00', endTime: '13:00', note: 'Dự án mới', employeeName: 'Lê Văn C', departmentId: 103, departmentName: 'Tuyển sinh' },
+
+            { shiftId: 101, employeeId: 1, date: '2025-07-20', shiftName: 'Ca sáng', startTime: '08:00', endTime: '12:00', note: '', employeeName: 'Nguyễn Văn A', departmentId: 101, departmentName: 'Giáo vụ' },
+            { shiftId: 102, employeeId: 1, date: '2025-07-21', shiftName: 'Ca chiều', startTime: '13:00', endTime: '17:00', note: 'Họp chuyên môn', employeeName: 'Nguyễn Văn A', departmentId: 101, departmentName: 'Giáo vụ' },
+            { shiftId: 103, employeeId: 2, date: '2025-07-20', shiftName: 'Ca hành chính', startTime: '08:30', endTime: '17:30', note: 'Nghỉ trưa 1h', employeeName: 'Trần Thị B', departmentId: 102, departmentName: 'Kế toán' },
+            { shiftId: 104, employeeId: 2, date: '2025-07-22', shiftName: 'Ca hành chính', startTime: '08:30', endTime: '17:30', note: '', employeeName: 'Trần Thị B', departmentId: 102, departmentName: 'Kế toán' },
+            { shiftId: 105, employeeId: 3, date: '2025-07-21', shiftName: 'Ca chiều', startTime: '13:00', endTime: '17:00', note: '', employeeName: 'Lê Văn C', departmentId: 103, departmentName: 'Tuyển sinh' },
+            { shiftId: 106, employeeId: 4, date: '2025-07-22', shiftName: 'Ca sáng', startTime: '09:00', endTime: '13:00', note: '', employeeName: 'Phạm Thị D', departmentId: 104, departmentName: 'Hành chính' },
+        ];
+
+
+        /**
+         * Hiển thị lớp phủ tải toàn màn hình.
+         */
+        function showFullScreenLoading() {
+            fullScreenLoadingOverlay.classList.add('active');
+        }
+
+        /**
+         * Ẩn lớp phủ tải toàn màn hình.
+         */
+        function hideFullScreenLoading() {
+            fullScreenLoadingOverlay.classList.remove('active');
+        }
+
+        /**
+         * Hiển thị một thông báo tùy chỉnh thay vì alert().
+         * @param {string} message - Nội dung thông báo.
+         */
+        function showCustomMessage(message) {
+            customMessageText.textContent = message;
+            customMessageBoxOverlay.classList.add('show');
+        }
+
+        // Đóng hộp thoại thông báo tùy chỉnh khi nhấp vào nút "Đóng"
+        closeCustomMessageBox.addEventListener('click', () => {
+            customMessageBoxOverlay.classList.remove('show');
+        });
+
+        /**
+         * Cập nhật ngày và giờ hiện tại trên header.
+         */
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('vi-VN', options);
+        }
+        updateCurrentDate(); // Gọi lần đầu khi tải trang
+        setInterval(updateCurrentDate, 60000); // Cập nhật mỗi phút
+
+        // Xử lý dropdown thông tin người dùng
+        const userInfo = document.getElementById('userInfo');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userInfo && userDropdown) {
+            userInfo.addEventListener('click', (event) => {
+                event.stopPropagation(); // Ngăn chặn sự kiện click lan truyền ra body
+                userDropdown.classList.toggle('show'); // Hiển thị/ẩn dropdown
+                // Close notification dropdown if open
+                if (notificationDropdown.classList.contains('show')) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+
+            // Ẩn dropdown khi click ra ngoài
+            document.body.addEventListener('click', (event) => {
+                if (userDropdown.classList.contains('show') && !userInfo.contains(event.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // Notification dropdown handling
+        const notificationBellIcon = document.getElementById('notificationBellIcon');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationCountBadge = document.getElementById('notificationCountBadge');
+        const notificationList = document.getElementById('notificationList'); // Changed to notificationList
+        const clearNotificationsBtn = document.getElementById('clearNotificationsBtn'); // Changed to clearNotificationsBtn
+
+        let activeNotifications = [];
+
+        function updateNotificationCount(count) {
+            if (notificationCountBadge) {
+                notificationCountBadge.textContent = count > 99 ? '99+' : count;
+                if (count > 0) {
+                    notificationCountBadge.style.display = 'block';
+                } else {
+                    notificationCountBadge.style.display = 'none';
+                }
+            }
+        }
+
+        function isSameDay(d1, d2) {
+            return d1.getFullYear() === d2.getFullYear() &&
+                   d1.getMonth() === d2.getMonth() &&
+                   d1.getDate() === d2.getDate();
+        }
+
+        function getTimeCategory(notificationDate) {
+            const now = new Date();
+            const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            yesterday.setHours(0, 0, 0, 0);
+
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            // Normalize notificationDate to exclude seconds and milliseconds for comparison
+            const normalizedNotificationDate = new Date(notificationDate.getFullYear(), notificationDate.getMonth(), notificationDate.getDate(), notificationDate.getHours(), notificationDate.getMinutes());
+
+
+            if (normalizedNotificationDate > oneHourAgo) {
+                return 'Mới';
+            } else if (isSameDay(normalizedNotificationDate, now)) {
+                return 'Hôm nay';
+            } else if (isSameDay(normalizedNotificationDate, yesterday)) {
+                return 'Hôm qua';
+            } else if (normalizedNotificationDate >= startOfWeek) {
+                return 'Tuần này';
+            } else if (normalizedNotificationDate >= startOfMonth) {
+                return 'Tháng này';
+            }
+            return 'Cũ hơn';
+        }
+
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            let interval = seconds / 31536000;
+            if (interval > 1) {
+                return Math.floor(interval) + " năm trước";
+            }
+            interval = seconds / 2592000;
+            if (interval > 1) {
+                return Math.floor(interval) + " tháng trước";
+            }
+            interval = seconds / 86400;
+            if (interval > 1) {
+                return Math.floor(interval) + " ngày trước";
+            }
+            interval = seconds / 3600;
+            if (interval > 1) {
+                return Math.floor(interval) + " giờ trước";
+            }
+            interval = seconds / 60;
+            if (interval > 1) {
+                return Math.floor(interval) + " phút trước";
+            }
+            return Math.floor(seconds) + " giây trước";
+        }
+
+        function renderNotifications(notifications) {
+            notificationList.innerHTML = '';
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<li class="text-gray-400 text-sm p-2">Không có thông báo mới.</li>';
+                clearNotificationsBtn.style.display = 'none';
+                updateNotificationCount(0);
+                return;
+            }
+
+            clearNotificationsBtn.style.display = 'block';
+
+            notifications.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+            const groupedNotifications = {
+                'Mới': [], 'Hôm nay': [], 'Hôm qua': [], 'Tuần này': [], 'Tháng này': [], 'Cũ hơn': []
+            };
+
+            notifications.forEach(notif => {
+                const category = getTimeCategory(notif.date);
+                if (!groupedNotifications[category]) {
+                    groupedNotifications[category] = [];
+                }
+                groupedNotifications[category].push(notif);
+            });
+
+            const categoryOrder = ['Mới', 'Hôm nay', 'Hôm qua', 'Tuần này', 'Tháng này', 'Cũ hơn'];
+
+            categoryOrder.forEach(category => {
+                if (groupedNotifications[category].length > 0) {
+                    const categoryHeader = document.createElement('li');
+                    categoryHeader.classList.add('notification-dropdown-header'); // Changed to match Log.html
+                    categoryHeader.innerHTML = `<h3>${category}</h3>`;
+                    notificationList.appendChild(categoryHeader);
+
+                    groupedNotifications[category].forEach(notif => {
+                        const notificationItem = document.createElement('li');
+                        notificationItem.classList.add('notification-item');
+                        notificationItem.dataset.id = notif.id;
+                        notificationItem.innerHTML = `
+                            <strong>${notif.title}:</strong> ${notif.message}
+                            <span class="time">${formatTimeAgo(notif.date)}</span>
+                        `;
+                        notificationList.appendChild(notificationItem);
+
+                        notificationItem.addEventListener('click', (event) => {
+                            event.stopPropagation();
+                            markNotificationAsRead(notif.id);
+                            // Optionally, close the dropdown after marking one as read
+                            notificationDropdown.classList.remove('show');
+                        });
+                    });
+                }
+            });
+            updateNotificationCount(notifications.length);
+        }
+
+        function markNotificationAsRead(id) {
+            activeNotifications = activeNotifications.filter(notif => notif.id !== id);
+            renderNotifications(activeNotifications);
+            showCustomMessage(`Thông báo "${id}" đã được đánh dấu là đã đọc.`);
+            notificationDropdown.classList.remove('show');
+        }
+
+        // Initial mock notifications
+        activeNotifications = [
+            { id: 'notif1', title: 'Thông báo 1', message: 'Học viên mới đã đăng ký.', date: new Date(Date.now() - 30 * 60 * 1000) },
+            { id: 'notif2', title: 'Thông báo 2', message: 'Lịch học sắp tới.', date: new Date(Date.now() - 5 * 60 * 60 * 1000) },
+            { id: 'notif3', title: 'Thông báo 3', message: 'Yêu cầu hỗ trợ mới.', date: new Date(Date.now() - 24 * 60 * 60 * 1000 - 2 * 60 * 60 * 1000) },
+            { id: 'notif4', title: 'Thông báo 4', message: 'Khóa học mới được thêm.', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+            { id: 'notif5', title: 'Thông báo 5', message: 'Cập nhật hệ thống.', date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) },
+            { id: 'notif6', title: 'Thông báo 6', message: 'Báo cáo hàng tháng đã sẵn sàng.', date: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000) },
+        ];
+        renderNotifications(activeNotifications);
+
+        if (notificationBellIcon && notificationDropdown) {
+            notificationBellIcon.addEventListener('click', (event) => {
+                event.stopPropagation();
+                notificationDropdown.classList.toggle('show');
+                // Close user dropdown if open
+                if (userDropdown.classList.contains('show')) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+
+            document.body.addEventListener('click', (event) => {
+                if (notificationDropdown.classList.contains('show') && !notificationBellIcon.contains(event.target) && !notificationDropdown.contains(event.target)) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        if (clearNotificationsBtn) {
+            clearNotificationsBtn.addEventListener('click', () => {
+                activeNotifications = [];
+                renderNotifications(activeNotifications);
+                notificationDropdown.classList.remove('show');
+                showCustomMessage('Tất cả thông báo đã được đánh dấu là đã đọc.');
+            });
+        }
+
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Xử lý nút "Đổi Mật Khẩu"
+        if (changePasswordBtn) {
+            changePasswordBtn.addEventListener('click', () => {
+                showFullScreenLoading();
+                // Gửi thông báo đến WebView2 để hiển thị hộp thoại đổi mật khẩu
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({ type: 'ShowChangePasswordDialog' }));
+                } else {
+                    showCustomMessage('Chức năng đổi mật khẩu chỉ khả dụng trong ứng dụng Windows Forms.');
+                }
+                userDropdown.classList.remove('show');
+                setTimeout(hideFullScreenLoading, 1000); // Ẩn loading sau 1s (mô phỏng)
+            });
+        }
+
+        // Xử lý nút "Đăng Xuất"
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                // Gửi thông báo đến WebView2 để đăng xuất
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({ type: 'Logout' }));
+                } else {
+                    showCustomMessage('Chức năng đăng xuất chỉ khả dụng trong ứng dụng Windows Forms.');
+                }
+                userDropdown.classList.remove('show');
+            });
+        }
+
+        /**
+         * Đặt tên người dùng đã đăng nhập.
+         * @param {string} name - Tên người dùng.
+         * @param {string} title - Chức danh người dùng.
+         */
+        function setLoggedInUserName(name, title) {
+            const userNameSpan = document.getElementById('employeeName');
+            const userTitleSpan = document.getElementById('employeeTitle');
+            if (userNameSpan) {
+                userNameSpan.textContent = name;
+            }
+            if (userTitleSpan) {
+                userTitleSpan.textContent = title;
+            }
+        }
+
+        /**
+         * Populate a dropdown with options.
+         * @param {HTMLElement} selectElement - The select element to populate.
+         * @param {Array<object>} data - Array of objects with 'id' and 'name' properties.
+         * @param {string} defaultOptionText - Text for the default "Select all" option.
+         */
+        function populateDropdown(selectElement, data, defaultOptionText) {
+            selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`;
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    selectElement.appendChild(option);
+                });
+            }
+        }
+
+        // --- Chức năng Tab ---
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.dataset.tab;
+
+                // Xóa lớp 'active' khỏi tất cả các nút và nội dung tab
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Thêm lớp 'active' vào nút được nhấp và nội dung tab tương ứng
+                button.classList.add('active');
+                document.getElementById(tabId + 'Tab').classList.add('active');
+
+                // Khi chuyển tab, tải lại dữ liệu cho tab đang hoạt động
+                if (tabId === 'machineTimekeeping') {
+                    // Trigger filter for machine/shift timekeeping
+                    triggerTimekeepingFilter();
+                } else if (tabId === 'shiftTimekeeping') {
+                    // Trigger filter for machine/shift timekeeping
+                    triggerTimekeepingFilter();
+                } else if (tabId === 'workSchedule') {
+                    // Set default dates for work schedule tab if not already set
+                    if (!wsStartDateFilter.value || !wsEndDateFilter.value) {
+                        const today = new Date();
+                        const sevenDaysAgo = new Date();
+                        sevenDaysAgo.setDate(today.getDate() - 7);
+                        wsStartDateFilter.value = sevenDaysAgo.toISOString().split('T')[0];
+                        wsEndDateFilter.value = today.toISOString().split('T')[0];
+                    }
+                    triggerWorkScheduleFilter();
+                } else if (tabId === 'manageWorkSchedule') {
+                    // Set default dates for manage work schedule tab if not already set
+                    if (!manageWSStartDateFilter.value || !manageWSEndDateFilter.value) {
+                        const today = new Date();
+                        const sevenDaysAgo = new Date();
+                        sevenDaysAgo.setDate(today.getDate() - 7);
+                        manageWSStartDateFilter.value = sevenDaysAgo.toISOString().split('T')[0];
+                        manageWSEndDateFilter.value = today.toISOString().split('T')[0];
+                    }
+                    // Only request data if an employee is selected
+                    if (manageWSEmployeeFilter.value) {
+                        triggerManageWorkScheduleFilter();
+                    } else {
+                        manageWorkScheduleTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Chọn nhân viên để xem và quản lý lịch làm việc.</td></tr>';
+                    }
+                }
+            });
+        });
+
+        /**
+         * Hiển thị dữ liệu chấm công máy vào bảng.
+         * @param {Array<object>} data - Mảng dữ liệu chấm công máy.
+         */
+        function renderMachineTimekeepingTable(data) {
+            machineTimekeepingTableBody.innerHTML = ''; // Xóa nội dung cũ
+            if (data && data.length > 0) {
+                currentMachineTimekeepingData = data; // Lưu trữ dữ liệu hiện tại
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.date || 'N/A'}</td>
+                        <td>${item.checkInTime || 'N/A'}</td>
+                        <td>${item.checkOutTime || 'N/A'}</td>
+                        <td>${item.totalHours || 'N/A'}</td>
+                        <td>${item.status || 'N/A'}</td>
+                        <td>${item.note || ''}</td>
+                    `;
+                    machineTimekeepingTableBody.appendChild(row);
+                });
+            } else {
+                machineTimekeepingTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Không có dữ liệu chấm công máy trong khoảng thời gian này.</td></tr>';
+            }
+        }
+
+        /**
+         * Hiển thị dữ liệu ca dạy và cho phép chấm công.
+         * @param {Array<object>} data - Mảng dữ liệu ca dạy.
+         * @param {Array<object>} statusOptions - Tùy chọn trạng thái chấm công (value, text).
+         */
+        function renderShiftTimekeepingTable(data, statusOptions) {
+            shiftTimekeepingTableBody.innerHTML = ''; // Xóa nội dung cũ
+            if (data && data.length > 0) {
+                currentShiftTimekeepingData = data; // Lưu trữ dữ liệu hiện tại
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    // Tạo các tùy chọn trạng thái cho dropdown
+                    let statusOptionsHtml = statusOptions.map(option =>
+                        `<option value="${option.value}" ${item.statusId == option.value ? 'selected' : ''}>${option.text}</option>`
+                    ).join('');
+
+                    row.innerHTML = `
+                        <td>${item.shiftId || 'N/A'}</td>
+                        <td>${item.shiftDate || 'N/A'}</td>
+                        <td>${item.startTime || 'N/A'}</td>
+                        <td>${item.endTime || 'N/A'}</td>
+                        <td>${item.className || 'N/A'}</td>
+                        <td>
+                            <select class="shift-status-select"
+                                data-shift-id="${item.shiftId}">
+                                ${statusOptionsHtml}
+                            </select>
+                        </td>
+                        <td class="action-buttons">
+                            <button class="save-btn" data-shift-id="${item.shiftId}">Lưu</button>
+                            <button class="view-btn" data-class-id="${item.classId}">Xem Lớp</button>
+                        </td>
+                    `;
+                    shiftTimekeepingTableBody.appendChild(row);
+                });
+
+                // Gắn sự kiện click cho các nút "Lưu" và "Xem Lớp"
+                document.querySelectorAll('#shiftTimekeepingTableBody .save-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const shiftId = event.target.dataset.shiftId;
+                        const statusSelect = document.querySelector(`.shift-status-select[data-shift-id="${shiftId}"]`);
+                        const statusId = statusSelect ? parseInt(statusSelect.value, 10) : null;
+                        saveShiftAttendance(shiftId, statusId);
+                    });
+                });
+
+                document.querySelectorAll('#shiftTimekeepingTableBody .view-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const classId = event.target.dataset.classId;
+                        viewClassDetails(classId);
+                    });
+                });
+
+            } else {
+                shiftTimekeepingTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-4">Không có dữ liệu ca dạy trong khoảng thời gian này.</td></tr>';
+            }
+        }
+
+        /**
+         * Hiển thị dữ liệu lịch làm việc vào bảng.
+         * @param {Array<object>} data - Mảng dữ liệu lịch làm việc.
+         */
+        function renderWorkScheduleTable(data) {
+            workScheduleTableBody.innerHTML = ''; // Xóa nội dung cũ
+            if (data && data.length > 0) {
+                currentWorkScheduleData = data; // Lưu trữ dữ liệu hiện tại
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.date || 'N/A'}</td>
+                        <td>${item.employeeName || 'N/A'}</td>
+                        <td>${item.departmentName || 'N/A'}</td>
+                        <td>${item.shiftName || 'N/A'}</td>
+                        <td>${item.startTime || 'N/A'}</td>
+                        <td>${item.endTime || 'N/A'}</td>
+                        <td>${item.note || ''}</td>
+                    `;
+                    workScheduleTableBody.appendChild(row);
+                });
+            } else {
+                workScheduleTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-4">Không có dữ liệu lịch làm việc trong khoảng thời gian này.</td></tr>';
+            }
+        }
+
+        /**
+         * Hiển thị dữ liệu lịch làm việc của một nhân viên cụ thể vào bảng quản lý, có thể chỉnh sửa trực tiếp.
+         * @param {Array<object>} data - Mảng dữ liệu lịch làm việc của nhân viên.
+         */
+        function renderManageWorkScheduleTable(data) {
+            manageWorkScheduleTableBody.innerHTML = ''; // Clear old content
+            if (data && data.length > 0) {
+                currentManageWorkScheduleData = data; // Store current data
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.dataset.shiftId = item.shiftId; // Store shiftId on the row
+                    row.innerHTML = `
+                        <td>${item.date || 'N/A'}</td>
+                        <td data-field="shiftName">${item.shiftName || 'N/A'}</td>
+                        <td data-field="startTime">${item.startTime || 'N/A'}</td>
+                        <td data-field="endTime">${item.endTime || 'N/A'}</td>
+                        <td data-field="note">${item.note || ''}</td>
+                        <td class="action-buttons">
+                            <button class="edit-btn" data-id="${item.shiftId}">Sửa</button>
+                            <button class="delete-btn" data-id="${item.shiftId}">Xóa</button>
+                        </td>
+                    `;
+                    manageWorkScheduleTableBody.appendChild(row);
+                });
+
+                // Attach event listeners for edit and delete buttons
+                document.querySelectorAll('#manageWorkScheduleTableBody .edit-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const shiftId = parseInt(event.target.dataset.id, 10);
+                        toggleEditMode(shiftId, event.target);
+                    });
+                });
+
+                document.querySelectorAll('#manageWorkScheduleTableBody .delete-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const shiftId = parseInt(event.target.dataset.id, 10);
+                        deleteWorkShift(shiftId);
+                    });
+                });
+
+            } else {
+                manageWorkScheduleTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Không có lịch làm việc cho nhân viên này trong khoảng thời gian đã chọn.</td></tr>';
+            }
+        }
+
+        /**
+         * Toggles edit mode for a specific row in the manage work schedule table.
+         * @param {number} shiftId - The ID of the shift to edit.
+         * @param {HTMLElement} editButton - The edit button that was clicked.
+         */
+        function toggleEditMode(shiftId, editButton) {
+            const row = editButton.closest('tr');
+            if (!row) return;
+
+            const shiftData = currentManageWorkScheduleData.find(shift => shift.shiftId === shiftId);
+            if (!shiftData) return;
+
+            // Check if already in edit mode
+            const isInEditMode = row.classList.contains('editing');
+
+            if (isInEditMode) {
+                // Exit edit mode (cancel changes or save if user clicks save)
+                // This function is for toggling, actual save/cancel handled by dedicated buttons
+                return;
+            } else {
+                // Enter edit mode
+                row.classList.add('editing');
+                const fields = ['shiftName', 'startTime', 'endTime', 'note'];
+
+                fields.forEach(field => {
+                    const cell = row.querySelector(`td[data-field="${field}"]`);
+                    if (cell) {
+                        const currentValue = shiftData[field];
+                        let inputElement;
+
+                        if (field === 'startTime' || field === 'endTime') {
+                            inputElement = document.createElement('input');
+                            inputElement.type = 'time';
+                        } else {
+                            inputElement = document.createElement('input');
+                            inputElement.type = 'text';
+                        }
+                        inputElement.value = currentValue || '';
+                        inputElement.classList.add('w-full', 'p-2', 'border', 'border-gray-300', 'rounded-md');
+                        cell.innerHTML = '';
+                        cell.appendChild(inputElement);
+                    }
+                });
+
+                // Change buttons
+                const actionCell = row.querySelector('.action-buttons');
+                if (actionCell) {
+                    actionCell.innerHTML = `
+                        <button class="save-btn" data-id="${shiftId}">Lưu</button>
+                        <button class="cancel-btn" data-id="${shiftId}">Hủy</button>
+                    `;
+
+                    actionCell.querySelector('.save-btn').addEventListener('click', (e) => {
+                        saveEditedWorkShift(shiftId, row);
+                    });
+                    actionCell.querySelector('.cancel-btn').addEventListener('click', (e) => {
+                        cancelEditMode(shiftId, row);
+                    });
+                }
+            }
+        }
+
+        /**
+         * Saves the edited work shift data from the table row.
+         * @param {number} shiftId - The ID of the shift being edited.
+         * @param {HTMLElement} row - The table row element.
+         */
+        function saveEditedWorkShift(shiftId, row) {
+            const updatedData = {
+                shiftId: shiftId,
+                employeeId: parseInt(manageWSEmployeeFilter.value, 10), // Get employee ID from filter
+                date: row.querySelector('td:first-child').textContent, // Date is not editable, so get from text content
+                shiftName: row.querySelector('td[data-field="shiftName"] input').value,
+                startTime: row.querySelector('td[data-field="startTime"] input').value,
+                endTime: row.querySelector('td[data-field="endTime"] input').value,
+                note: row.querySelector('td[data-field="note"] input').value
+            };
+
+            // Basic validation
+            if (!updatedData.shiftName || !updatedData.startTime || !updatedData.endTime) {
+                showCustomMessage('Vui lòng điền đầy đủ Ca làm việc, Giờ bắt đầu và Giờ kết thúc.');
+                return;
+            }
+
+            saveWorkShift(updatedData); // Use the existing saveWorkShift function
+        }
+
+        /**
+         * Cancels edit mode for a row and reverts changes.
+         * @param {number} shiftId - The ID of the shift.
+         * @param {HTMLElement} row - The table row element.
+         */
+        function cancelEditMode(shiftId, row) {
+            row.classList.remove('editing');
+            const originalShiftData = allSimulatedWorkScheduleData.find(shift => shift.shiftId === shiftId);
+
+            if (originalShiftData) {
+                const fields = ['shiftName', 'startTime', 'endTime', 'note'];
+                fields.forEach(field => {
+                    const cell = row.querySelector(`td[data-field="${field}"]`);
+                    if (cell) {
+                        cell.innerHTML = originalShiftData[field] || '';
+                    }
+                });
+
+                // Revert buttons
+                const actionCell = row.querySelector('.action-buttons');
+                if (actionCell) {
+                    actionCell.innerHTML = `
+                        <button class="edit-btn" data-id="${shiftId}">Sửa</button>
+                        <button class="delete-btn" data-id="${shiftId}">Xóa</button>
+                    `;
+                    actionCell.querySelector('.edit-btn').addEventListener('click', (e) => {
+                        toggleEditMode(shiftId, e.target);
+                    });
+                    actionCell.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        deleteWorkShift(shiftId);
+                    });
+                }
+            }
+        }
+
+
+        /**
+         * Gửi yêu cầu lưu trạng thái chấm công ca dạy của một dòng cụ thể về C#.
+         * @param {number} shiftId - ID của ca dạy.
+         * @param {number} statusId - ID trạng thái chấm công.
+         */
+        function saveShiftAttendance(shiftId, statusId) {
+            showFullScreenLoading();
+            const dataToSave = {
+                employeeId: currentEmployeeId, // Đảm bảo employeeId có sẵn
+                shiftId: parseInt(shiftId, 10),
+                statusId: parseInt(statusId, 10)
+            };
+
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'saveShiftAttendance',
+                    data: dataToSave
+                }));
+            } else {
+                showCustomMessage(`Simulated: Lưu chấm công ca dạy (Shift ID: ${shiftId}, Status ID: ${statusId})`);
+                setTimeout(hideFullScreenLoading, 1000);
+            }
+        }
+
+        /**
+         * Gửi yêu cầu xem chi tiết lớp học về C#.
+         * @param {number} classId - ID của lớp học.
+         */
+        function viewClassDetails(classId) {
+            showFullScreenLoading();
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'viewClassDetails',
+                    classId: parseInt(classId, 10)
+                }));
+            } else {
+                showCustomMessage(`Simulated: Chuyển đến trang chi tiết lớp học (Class ID: ${classId})`);
+                setTimeout(hideFullScreenLoading, 1000);
+            }
+        }
+
+        /**
+         * Thu thập tất cả dữ liệu từ bảng chấm công ca dạy và gửi về C#.
+         * Được sử dụng khi muốn lưu tất cả thay đổi cùng lúc thay vì từng dòng.
+         */
+        function saveAllShiftChanges() {
+            showFullScreenLoading();
+            const updatedShiftAttendance = [];
+            document.querySelectorAll('#shiftTimekeepingTableBody tr').forEach(row => {
+                const shiftId = row.querySelector('.shift-status-select')?.dataset.shiftId;
+                const statusId = row.querySelector('.shift-status-select')?.value;
+
+                if (shiftId && statusId) {
+                    updatedShiftAttendance.push({
+                        employeeId: currentEmployeeId,
+                        shiftId: parseInt(shiftId, 10),
+                        statusId: parseInt(statusId, 10)
+                    });
+                }
+            });
+
+            console.log('Dữ liệu cập nhật ca dạy gửi về C#:', updatedShiftAttendance);
+
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'saveAllShiftAttendanceChanges',
+                    data: updatedShiftAttendance
+                }));
+            } else {
+                showCustomMessage('Chức năng lưu tất cả chấm công ca dạy chỉ hoạt động trong môi trường WebView2.');
+                hideFullScreenLoading();
+                setTimeout(() => {
+                    showCustomMessage('Simulated: Lưu tất cả thay đổi ca dạy thành công!');
+                }, 1500);
+            }
+        }
+
+        // Gắn sự kiện cho nút "Lưu Chấm Công Ca Dạy"
+        if (saveShiftTimekeepingBtn) {
+            saveShiftTimekeepingBtn.addEventListener('click', saveAllShiftChanges);
+        }
+
+        /**
+         * Gửi yêu cầu dữ liệu chấm công đến C# dựa trên bộ lọc.
+         * @param {number} employeeId - ID nhân viên.
+         * @param {string} startDate - Ngày bắt đầu lọc (YYYY-MM-DD).
+         * @param {string} endDate - Ngày kết thúc lọc (YYYY-MM-DD).
+         */
+        function requestTimekeepingData(employeeId, startDate, endDate) {
+            console.log(`Requesting timekeeping data for employee ${employeeId} from ${startDate} to ${endDate}`);
+            showFullScreenLoading();
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'requestEmployeeTimekeepingData',
+                    employeeId: employeeId,
+                    startDate: startDate,
+                    endDate: endDate
+                }));
+            } else {
+                // Mô phỏng dữ liệu cho môi trường trình duyệt
+                simulateTimekeepingData(startDate, endDate);
+                hideFullScreenLoading();
+            }
+        }
+
+        // --- NEW: Automatic filtering for Machine/Shift Timekeeping tab ---
+        function triggerTimekeepingFilter() {
+            const startDate = startDateFilter.value;
+            const endDate = endDateFilter.value;
+            if (startDate && endDate) {
+                requestTimekeepingData(currentEmployeeId, startDate, endDate);
+            } else {
+                // Optionally show a message or clear the table if dates are incomplete
+                // showCustomMessage('Vui lòng chọn cả ngày bắt đầu và ngày kết thúc cho chấm công.');
+            }
+        }
+
+        startDateFilter.addEventListener('change', triggerTimekeepingFilter);
+        endDateFilter.addEventListener('change', triggerTimekeepingFilter);
+
+
+        /**
+         * Gửi yêu cầu dữ liệu lịch làm việc đến C# dựa trên bộ lọc.
+         * @param {string} startDate - Ngày bắt đầu lọc (YYYY-MM-DD).
+         * @param {string} endDate - Ngày kết thúc lọc (YYYY-MM-DD).
+         * @param {number|null} employeeId - ID nhân viên để lọc, null nếu chọn tất cả.
+         * @param {number|null} departmentId - ID bộ phận để lọc, null nếu chọn tất cả.
+         */
+        function requestWorkScheduleData(startDate, endDate, employeeId, departmentId) {
+            console.log(`Requesting ALL work schedule data from ${startDate} to ${endDate} for employee ${employeeId} and department ${departmentId}`);
+            showFullScreenLoading();
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'requestWorkScheduleData',
+                    startDate: startDate,
+                    endDate: endDate,
+                    employeeId: employeeId,
+                    departmentId: departmentId
+                }));
+            } else {
+                // Mô phỏng dữ liệu cho môi trường trình duyệt
+                simulateWorkScheduleData(startDate, endDate, employeeId, departmentId);
+                hideFullScreenLoading();
+            }
+        }
+
+        // --- NEW: Automatic filtering for Work Schedule (View All) tab ---
+        function triggerWorkScheduleFilter() {
+            const startDate = wsStartDateFilter.value;
+            const endDate = wsEndDateFilter.value;
+            const selectedEmployeeId = employeeFilter.value ? parseInt(employeeFilter.value, 10) : null;
+            const selectedDepartmentId = departmentFilter.value ? parseInt(departmentFilter.value, 10) : null;
+
+            if (startDate && endDate) {
+                requestWorkScheduleData(startDate, endDate, selectedEmployeeId, selectedDepartmentId);
+            } else {
+                // showCustomMessage('Vui lòng chọn cả ngày bắt đầu và ngày kết thúc cho lịch làm việc.');
+            }
+        }
+
+        wsStartDateFilter.addEventListener('change', triggerWorkScheduleFilter);
+        wsEndDateFilter.addEventListener('change', triggerWorkScheduleFilter);
+        employeeFilter.addEventListener('change', triggerWorkScheduleFilter);
+        departmentFilter.addEventListener('change', triggerWorkScheduleFilter);
+
+
+        /**
+         * Gửi yêu cầu dữ liệu lịch làm việc của một nhân viên cụ thể đến C# dựa trên bộ lọc.
+         * @param {number} employeeId - ID nhân viên để lọc.
+         * @param {string} startDate - Ngày bắt đầu lọc (YYYY-MM-DD).
+         * @param {string} endDate - Ngày kết thúc lọc (YYYY-MM-DD).
+         */
+        function requestManageWorkScheduleData(employeeId, startDate, endDate) {
+            console.log(`Requesting MANAGE work schedule data for employee ${employeeId} from ${startDate} to ${endDate}`);
+            showFullScreenLoading();
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'requestManageWorkScheduleData',
+                    employeeId: employeeId,
+                    startDate: startDate,
+                    endDate: endDate
+                }));
+            } else {
+                simulateManageWorkScheduleData(employeeId, startDate, endDate);
+                hideFullScreenLoading();
+            }
+        }
+
+        // --- NEW: Automatic filtering for Manage Work Schedule tab ---
+        function triggerManageWorkScheduleFilter() {
+            const selectedEmployeeId = manageWSEmployeeFilter.value;
+            const startDate = manageWSStartDateFilter.value;
+            const endDate = manageWSEndDateFilter.value;
+
+            if (selectedEmployeeId && startDate && endDate) {
+                requestManageWorkScheduleData(parseInt(selectedEmployeeId, 10), startDate, endDate);
+            } else {
+                manageWorkScheduleTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Chọn nhân viên để xem và quản lý lịch làm việc.</td></tr>';
+            }
+        }
+
+        manageWSEmployeeFilter.addEventListener('change', triggerManageWorkScheduleFilter);
+        manageWSStartDateFilter.addEventListener('change', triggerManageWorkScheduleFilter);
+        manageWSEndDateFilter.addEventListener('change', triggerManageWorkScheduleFilter);
+
+
+        // NEW: Event listener for the "Cập nhật Lịch Làm Việc" button
+        if (updateWorkShiftBtn) {
+            updateWorkShiftBtn.addEventListener('click', () => {
+                const selectedEmployeeId = manageWSEmployeeFilter.value;
+                const startDate = manageWSStartDateFilter.value;
+                const endDate = manageWSEndDateFilter.value;
+
+                if (!selectedEmployeeId) {
+                    showCustomMessage('Vui lòng chọn một nhân viên để cập nhật lịch làm việc.');
+                    return;
+                }
+                if (!startDate || !endDate) {
+                    showCustomMessage('Vui lòng chọn cả ngày bắt đầu và ngày kết thúc để cập nhật.');
+                    return;
+                }
+                // Refresh the manage tab's data
+                requestManageWorkScheduleData(parseInt(selectedEmployeeId, 10), startDate, endDate);
+                // Also refresh the overall work schedule tab's data
+                triggerWorkScheduleFilter(); // Use the auto-trigger function
+                showCustomMessage('Đã yêu cầu cập nhật lịch làm việc.');
+            });
+        }
+
+
+        // --- Modal Functions ---
+        /**
+         * Opens the work shift modal for adding or editing.
+         * @param {string} mode - 'add' or 'edit'.
+         * @param {object} [shiftData] - The shift data if in 'edit' mode.
+         */
+        function openWorkShiftModal(mode, shiftData = {}) {
+            workShiftForm.reset(); // Clear previous data
+            modalEmployeeSelect.disabled = false; // Enable employee select for add mode by default
+            workShiftIdInput.value = ''; // Clear hidden ID
+
+            if (mode === 'add') {
+                workShiftModalTitle.textContent = 'Thêm Ca Làm Việc';
+                // Pre-select employee if one is already chosen in the filter
+                if (manageWSEmployeeFilter.value) {
+                    modalEmployeeSelect.value = manageWSEmployeeFilter.value;
+                    modalEmployeeSelect.disabled = true; // Disable if already selected from filter
+                } else {
+                    modalEmployeeSelect.value = ''; // Ensure no employee is pre-selected if filter is empty
+                }
+                // Pre-fill date with current filter date if available, otherwise today
+                modalShiftDateInput.value = manageWSStartDateFilter.value || new Date().toISOString().split('T')[0];
+
+            } else if (mode === 'edit') {
+                workShiftModalTitle.textContent = 'Sửa Ca Làm Việc';
+                workShiftIdInput.value = shiftData.shiftId;
+                modalEmployeeSelect.value = shiftData.employeeId;
+                modalEmployeeSelect.disabled = true; // Employee cannot be changed when editing a shift
+                modalShiftDateInput.value = shiftData.date;
+                modalShiftNameInput.value = shiftData.shiftName;
+                modalStartTimeInput.value = shiftData.startTime;
+                modalEndTimeInput.value = shiftData.endTime;
+                modalNoteInput.value = shiftData.note;
+            }
+            populateDropdown(modalEmployeeSelect, allEmployees, 'Chọn nhân viên'); // Populate dropdown every time
+            // Re-select the employee after populating if it was pre-set
+            if (modalEmployeeSelect.disabled && manageWSEmployeeFilter.value) {
+                modalEmployeeSelect.value = manageWSEmployeeFilter.value;
+            } else if (mode === 'edit' && shiftData.employeeId) {
+                 modalEmployeeSelect.value = shiftData.employeeId;
+            }
+
+
+            workShiftModalOverlay.classList.add('show');
+        }
+
+        function closeWorkShiftModal() {
+            workShiftModalOverlay.classList.remove('show');
+        }
+
+        // Event listeners for modal buttons
+        addWorkShiftBtn.addEventListener('click', () => openWorkShiftModal('add'));
+        closeWorkShiftModalBtn.addEventListener('click', closeWorkShiftModal);
+        cancelWorkShiftModal.addEventListener('click', closeWorkShiftModal);
+
+        saveWorkShiftBtn.addEventListener('click', () => {
+            const shiftId = workShiftIdInput.value ? parseInt(workShiftIdInput.value, 10) : null;
+            const employeeId = parseInt(modalEmployeeSelect.value, 10);
+            const shiftDate = modalShiftDateInput.value;
+            const shiftName = modalShiftNameInput.value;
+            const startTime = modalStartTimeInput.value;
+            const endTime = modalEndTimeInput.value;
+            const note = modalNoteInput.value;
+
+            if (!employeeId || !shiftDate || !shiftName || !startTime || !endTime) {
+                showCustomMessage('Vui lòng điền đầy đủ các trường bắt buộc (Nhân viên, Ngày, Ca làm việc, Giờ bắt đầu, Giờ kết thúc).');
+                return;
+            }
+
+            const shiftData = {
+                shiftId: shiftId, // Will be null for new shifts
+                employeeId: employeeId,
+                date: shiftDate,
+                shiftName: shiftName,
+                startTime: startTime,
+                endTime: endTime,
+                note: note
+            };
+
+            saveWorkShift(shiftData);
+        });
+
+        /**
+         * Sends work shift data to C# for saving (add/edit).
+         * @param {object} shiftData - The work shift data.
+         */
+        function saveWorkShift(shiftData) {
+            console.log('Attempting to save work shift:', shiftData);
+            showFullScreenLoading();
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'saveWorkShift',
+                    data: shiftData
+                }));
+            } else {
+                // Simulate save
+                let message = '';
+                const employeeName = allEmployees.find(emp => emp.id === shiftData.employeeId)?.name || 'N/A';
+                // Assuming departmentId is part of employee data
+                const departmentId = allEmployees.find(emp => emp.id === shiftData.employeeId)?.departmentId;
+                const departmentName = allDepartments.find(dept => dept.id === departmentId)?.name || 'N/A';
+
+
+                if (shiftData.shiftId) {
+                    // Simulate edit
+                    const index = allSimulatedWorkScheduleData.findIndex(s => s.shiftId === shiftData.shiftId);
+                    if (index !== -1) {
+                        allSimulatedWorkScheduleData[index] = { ...allSimulatedWorkScheduleData[index], ...shiftData, employeeName, departmentName };
+                        message = 'Simulated: Sửa ca làm việc thành công!';
+                    } else {
+                        message = 'Simulated: Không tìm thấy ca làm việc để sửa.';
+                    }
+                } else {
+                    // Simulate add
+                    const newShiftId = Math.max(...allSimulatedWorkScheduleData.map(s => s.shiftId), 0) + 1;
+                    const newShift = { ...shiftData, shiftId: newShiftId, employeeName, departmentName };
+                    allSimulatedWorkScheduleData.push(newShift);
+                    message = 'Simulated: Thêm ca làm việc thành công!';
+                }
+                console.log('Updated allSimulatedWorkScheduleData:', allSimulatedWorkScheduleData);
+
+                // Re-render both tables after simulation
+                const selectedEmployeeId = manageWSEmployeeFilter.value ? parseInt(manageWSEmployeeFilter.value, 10) : null;
+                // Only trigger if an employee is selected for the manage tab
+                if (selectedEmployeeId) {
+                    triggerManageWorkScheduleFilter();
+                } else {
+                    // If no employee selected, just clear the table
+                    manageWorkScheduleTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Chọn nhân viên để xem và quản lý lịch làm việc.</td></tr>';
+                }
+                triggerWorkScheduleFilter(); // Always refresh the main work schedule tab
+
+                showCustomMessage(message);
+                closeWorkShiftModal();
+                hideFullScreenLoading();
+            }
+        }
+
+        /**
+         * Sends a request to C# to delete a work shift.
+         * @param {number} shiftId - The ID of the shift to delete.
+         */
+        function deleteWorkShift(shiftId) {
+            // Using a custom message box instead of confirm()
+            showCustomMessage('Bạn có chắc chắn muốn xóa ca làm việc này?');
+            // Add custom buttons to the message box for confirmation
+            const confirmButton = document.createElement('button');
+            confirmButton.textContent = 'Xác nhận';
+            confirmButton.classList.add('bg-red-500', 'hover:bg-red-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-md', 'shadow-sm', 'mr-2');
+            confirmButton.onclick = () => {
+                customMessageBoxOverlay.classList.remove('show');
+                executeDeleteWorkShift(shiftId);
+            };
+
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Hủy';
+            cancelButton.classList.add('bg-gray-500', 'hover:bg-gray-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-md', 'shadow-sm');
+            cancelButton.onclick = () => {
+                customMessageBoxOverlay.classList.remove('show');
+            };
+
+            // Clear existing buttons and append new ones
+            const messageBoxContent = customMessageBoxOverlay.querySelector('.custom-message-box-content');
+            const existingButton = messageBoxContent.querySelector('button');
+            if (existingButton) existingButton.remove(); // Remove the default "Đóng" button
+            messageBoxContent.appendChild(confirmButton);
+            messageBoxContent.appendChild(cancelButton);
+        }
+
+        function executeDeleteWorkShift(shiftId) {
+            console.log('Attempting to delete work shift:', shiftId);
+            showFullScreenLoading();
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'deleteWorkShift',
+                    shiftId: shiftId
+                }));
+            } else {
+                // Simulate delete
+                allSimulatedWorkScheduleData = allSimulatedWorkScheduleData.filter(shift => shift.shiftId !== shiftId);
+                console.log('Updated allSimulatedWorkScheduleData after delete:', allSimulatedWorkScheduleData);
+
+                // Re-render both tables after simulation
+                const selectedEmployeeId = manageWSEmployeeFilter.value ? parseInt(manageWSEmployeeFilter.value, 10) : null;
+                // Only trigger if an employee is selected for the manage tab
+                if (selectedEmployeeId) {
+                    triggerManageWorkScheduleFilter();
+                } else {
+                    // If no employee selected, just clear the table
+                    manageWorkScheduleTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Chọn nhân viên để xem và quản lý lịch làm việc.</td></tr>';
+                }
+                triggerWorkScheduleFilter(); // Always refresh the main work schedule tab
+
+                showCustomMessage('Simulated: Xóa ca làm việc thành công!');
+                hideFullScreenLoading();
+            }
+        }
+
+        // --- NEW: Mark All Absent Functions ---
+        /**
+         * Opens the Mark All Absent modal.
+         */
+        function openMarkAllAbsentModal() {
+            absentDateInput.value = new Date().toISOString().split('T')[0]; // Default to today
+            absentNoteInput.value = ''; // Clear note
+            markAllAbsentModalOverlay.classList.add('show');
+        }
+
+        /**
+         * Closes the Mark All Absent modal.
+         */
+        function closeMarkAllAbsentModal() {
+            markAllAbsentModalOverlay.classList.remove('show');
+        }
+
+        // Event listeners for Mark All Absent modal
+        markAllAbsentBtn.addEventListener('click', openMarkAllAbsentModal);
+        closeMarkAllAbsentModalBtn.addEventListener('click', closeMarkAllAbsentModal);
+        cancelMarkAllAbsentModal.addEventListener('click', closeMarkAllAbsentModal);
+
+        confirmMarkAllAbsentBtn.addEventListener('click', () => {
+            const absentDate = absentDateInput.value;
+            const absentNote = absentNoteInput.value;
+
+            if (!absentDate) {
+                showCustomMessage('Vui lòng chọn ngày nghỉ.');
+                return;
+            }
+
+            markAllEmployeesAbsent(absentDate, absentNote);
+        });
+
+        /**
+         * Sends a request to C# to mark all employees absent for a specific date.
+         * @param {string} date - The date to mark absent (YYYY-MM-DD).
+         * @param {string} note - The reason/note for absence.
+         */
+        function markAllEmployeesAbsent(date, note) {
+            console.log(`Attempting to mark all employees absent for ${date} with note: ${note}`);
+            showFullScreenLoading();
+
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'markAllEmployeesAbsent',
+                    date: date,
+                    note: note
+                }));
+            } else {
+                // Simulate marking all employees absent
+                const absentShiftData = [];
+                allEmployees.forEach(employee => {
+                    // Remove any existing shifts for this employee on this date
+                    allSimulatedWorkScheduleData = allSimulatedWorkScheduleData.filter(shift =>
+                        !(shift.employeeId === employee.id && shift.date === date)
+                    );
+
+                    // Add the "Nghỉ" shift
+                    const newShiftId = Math.max(...allSimulatedWorkScheduleData.map(s => s.shiftId), 0) + 1;
+                    absentShiftData.push({
+                        shiftId: newShiftId,
+                        employeeId: employee.id,
+                        date: date,
+                        shiftName: 'Nghỉ',
+                        startTime: '00:00', // Indicating full day absence
+                        endTime: '00:00',   // Indicating full day absence
+                        note: note || 'Nghỉ',
+                        employeeName: employee.name,
+                        departmentId: employee.departmentId,
+                        departmentName: allDepartments.find(dept => dept.id === employee.departmentId)?.name || 'N/A'
+                    });
+                });
+                allSimulatedWorkScheduleData.push(...absentShiftData);
+                console.log('Updated allSimulatedWorkScheduleData after marking all absent:', allSimulatedWorkScheduleData);
+
+                // Re-render relevant tables
+                triggerManageWorkScheduleFilter(); // Refresh current employee's view if selected
+                triggerWorkScheduleFilter(); // Refresh overall view
+                showCustomMessage(`Simulated: Đã đánh dấu tất cả nhân viên nghỉ vào ngày ${date}.`);
+                closeMarkAllAbsentModal();
+                hideFullScreenLoading();
+            }
+        }
+
+
+        // Lắng nghe thông báo từ C# (WebView2)
+        let initialDataLoadedFromWebView = false; // Flag to track initial data load
+        if (window.chrome && window.chrome.webview) {
+            try { // Thêm khối try-catch để bắt lỗi trong quá trình thêm listener
+                window.chrome.webview.addEventListener('message', event => {
+                    try { // Thêm khối try-catch để bắt lỗi khi phân tích cú pháp tin nhắn
+                        const message = JSON.parse(event.data);
+                        console.log('Received message from C#:', message); // Log all incoming messages
+                        if (message.type === 'employeeTimekeepingData') {
+                            currentEmployeeId = message.employeeId; // Đặt ID nhân viên hiện tại
+                            renderMachineTimekeepingTable(message.machineTimekeepingData);
+                            renderShiftTimekeepingTable(message.shiftTimekeepingData, message.shiftStatusOptions || []);
+                            initialDataLoadedFromWebView = true;
+                            hideFullScreenLoading();
+                        } else if (message.type === 'loggedInUserName') {
+                            setLoggedInUserName(message.name, message.title);
+                        } else if (message.type === 'saveShiftAttendanceStatus') {
+                            hideFullScreenLoading();
+                            if (message.success) {
+                                showCustomMessage('Lưu chấm công ca dạy thành công!');
+                                // Làm mới dữ liệu sau khi lưu
+                                triggerTimekeepingFilter();
+                            } else {
+                                showCustomMessage('Lỗi khi lưu chấm công ca dạy: ' + message.error);
+                            }
+                        } else if (message.type === 'saveAllShiftAttendanceChangesStatus') {
+                            hideFullScreenLoading();
+                            if (message.success) {
+                                showCustomMessage('Lưu tất cả thay đổi chấm công ca dạy thành công!');
+                                // Làm mới dữ liệu sau khi lưu
+                                triggerTimekeepingFilter();
+                            } else {
+                                showCustomMessage('Lỗi khi lưu tất cả thay đổi chấm công ca dạy: ' + message.error);
+                            }
+                        } else if (message.type === 'workScheduleData') {
+                            renderWorkScheduleTable(message.data);
+                            hideFullScreenLoading();
+                        } else if (message.type === 'manageWorkScheduleData') {
+                            renderManageWorkScheduleTable(message.data);
+                            hideFullScreenLoading();
+                        } else if (message.type === 'employeeListData') {
+                            allEmployees = message.employees;
+                            populateDropdown(employeeFilter, allEmployees, 'Tất cả nhân viên');
+                            populateDropdown(manageWSEmployeeFilter, allEmployees, 'Chọn nhân viên');
+                            populateDropdown(modalEmployeeSelect, allEmployees, 'Chọn nhân viên'); // For modal
+                        } else if (message.type === 'departmentListData') {
+                            allDepartments = message.departments;
+                            populateDropdown(departmentFilter, allDepartments, 'Tất cả bộ phận');
+                        } else if (message.type === 'saveWorkShiftStatus') {
+                            hideFullScreenLoading();
+                            if (message.success) {
+                                showCustomMessage('Thao tác lịch làm việc thành công!');
+                                closeWorkShiftModal();
+                                // Refresh data for the current employee in manage tab
+                                if (manageWSEmployeeFilter.value) {
+                                    triggerManageWorkScheduleFilter();
+                                } else {
+                                    manageWorkScheduleTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Chọn nhân viên để xem và quản lý lịch làm việc.</td></tr>';
+                                }
+                                // IMPORTANT: Refresh the 'Lịch Làm Việc' tab data after a successful save
+                                triggerWorkScheduleFilter();
+                            } else {
+                                showCustomMessage('Lỗi khi thao tác lịch làm việc: ' + message.error);
+                            }
+                        } else if (message.type === 'deleteWorkShiftStatus') {
+                            hideFullScreenLoading();
+                            if (message.success) {
+                                showCustomMessage('Xóa ca làm việc thành công!');
+                                // Refresh data for the current employee in manage tab
+                                if (manageWSEmployeeFilter.value) {
+                                    triggerManageWorkScheduleFilter();
+                                } else {
+                                    manageWorkScheduleTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Chọn nhân viên để xem và quản lý lịch làm việc.</td></tr>';
+                                }
+                                // IMPORTANT: Refresh the 'Lịch Làm Việc' tab data after a successful delete
+                                triggerWorkScheduleFilter();
+                            } else {
+                                showCustomMessage('Lỗi khi xóa ca làm việc: ' + message.error);
+                            }
+                        } else if (message.type === 'markAllEmployeesAbsentStatus') { // NEW: Handle status for marking all absent
+                            hideFullScreenLoading();
+                            if (message.success) {
+                                showCustomMessage(`Đã đánh dấu tất cả nhân viên nghỉ vào ngày ${message.date} thành công!`);
+                                closeMarkAllAbsentModal();
+                                triggerManageWorkScheduleFilter(); // Refresh current employee's view if selected
+                                triggerWorkScheduleFilter(); // Refresh overall view
+                            } else {
+                                showCustomMessage('Lỗi khi đánh dấu tất cả nhân viên nghỉ: ' + message.error);
+                            }
+                        }
+                    } catch (parseError) {
+                        console.error('Lỗi khi phân tích cú pháp tin nhắn từ C# WebView2:', parseError, event.data);
+                        showCustomMessage('Lỗi khi xử lý dữ liệu từ ứng dụng: ' + parseError.message);
+                    }
+                });
+            } catch (listenerError) {
+                console.error('Lỗi khi gắn trình nghe tin nhắn WebView2:', listenerError);
+                showCustomMessage('Lỗi hệ thống: Không thể thiết lập giao tiếp với ứng dụng.');
+            }
+        }
+
+        // Hàm mô phỏng dữ liệu cho môi trường trình duyệt (không phải WebView2)
+        function simulateTimekeepingData(startDate, endDate) {
+            console.log('Simulating timekeeping data...');
+            const dummyMachineData = [
+                // Added data for 2025-07-13 and 2025-07-14
+                { date: '2025-07-13', checkInTime: '08:00', checkOutTime: '17:00', totalHours: '9h 0m', status: 'Đúng giờ', note: 'Làm thêm' },
+                { date: '2025-07-14', checkInTime: '08:30', checkOutTime: '17:30', totalHours: '9h 0m', status: 'Đúng giờ', note: '' },
+                { date: '2025-07-15', checkInTime: '08:00', checkOutTime: '17:00', totalHours: '9h 0m', status: 'Đúng giờ', note: '' },
+                { date: '2025-07-16', checkInTime: '08:05', checkOutTime: '17:00', totalHours: '8h 55m', status: 'Đi muộn', note: '5 phút' },
+                { date: '2025-07-17', checkInTime: '09:00', checkOutTime: '18:00', totalHours: '9h 0m', status: 'Đúng giờ', note: '' },
+                { date: '2025-07-18', checkInTime: '08:00', checkOutTime: '17:00', totalHours: '9h 0m', status: 'Đúng giờ', note: '' },
+                { date: '2025-07-19', checkInTime: '08:10', checkOutTime: '17:00', totalHours: '8h 50m', status: 'Đi muộn', note: '10 phút' }
+            ].filter(item => item.date >= startDate && item.date <= endDate);
+
+            const dummyShiftData = [
+                // Added data for 2025-07-13 and 2025-07-14
+                { shiftId: 0, shiftDate: '2025-07-13', startTime: '09:00', endTime: '11:00', className: 'NN68AV005', statusId: 1, statusName: 'Đã chấm công', classId: 105, assignedTeacherId: 1, assignedTeacherName: 'Nguyễn Văn A' },
+                { shiftId: 7, shiftDate: '2025-07-14', startTime: '14:00', endTime: '16:00', className: 'NN68GT006', statusId: 2, statusName: 'Chưa chấm công', classId: 106, assignedTeacherId: 2, assignedTeacherName: 'Trần Thị B' },
+                { shiftId: 1, shiftDate: '2025-07-15', startTime: '09:00', endTime: '11:00', className: 'NN68AV001', statusId: 1, statusName: 'Đã chấm công', classId: 101, assignedTeacherId: 1, assignedTeacherName: 'Nguyễn Văn A' },
+                { shiftId: 2, shiftDate: '2025-07-15', startTime: '14:00', endTime: '16:00', className: 'NN68GT002', statusId: 1, statusName: 'Đã chấm công', classId: 102, assignedTeacherId: 1, assignedTeacherName: 'Nguyễn Văn A' },
+                { shiftId: 3, shiftDate: '2025-07-16', startTime: '10:00', endTime: '12:00', className: 'NN68AV001', statusId: 2, statusName: 'Chưa chấm công', classId: 101, assignedTeacherId: 2, assignedTeacherName: 'Trần Thị B' },
+                { shiftId: 4, shiftDate: '2025-07-17', startTime: '09:00', endTime: '11:00', className: 'NN68GT003', statusId: 2, statusName: 'Chưa chấm công', classId: 103, assignedTeacherId: 3, assignedTeacherName: 'Lê Văn C' },
+                { shiftId: 5, shiftDate: '2025-07-18', startTime: '13:00', endTime: '15:00', className: 'NN68AV002', statusId: 1, statusName: 'Đã chấm công', classId: 104, assignedTeacherId: 1, assignedTeacherName: 'Nguyễn Văn A' },
+                { shiftId: 6, shiftDate: '2025-07-19', startTime: '16:00', endTime: '18:00', className: 'NN68GT004', statusId: 2, statusName: 'Chưa chấm công', classId: 105, assignedTeacherId: 2, assignedTeacherName: 'Trần Thị B' }
+            ].filter(item => item.shiftDate >= startDate && item.shiftDate <= endDate);
+
+            // Cập nhật dummyShiftStatusOptions để loại bỏ "Nghỉ có phép" và "Nghỉ không phép"
+            const dummyShiftStatusOptions = [
+                { value: 1, text: 'Đã chấm công' },
+                { value: 2, text: 'Chưa chấm công' }
+            ];
+
+            renderMachineTimekeepingTable(dummyMachineData);
+            renderShiftTimekeepingTable(dummyShiftData, dummyShiftStatusOptions);
+        }
+
+        function simulateWorkScheduleData(startDate, endDate, employeeId, departmentId) {
+            console.log('Simulating ALL work schedule data...');
+            currentWorkScheduleData = allSimulatedWorkScheduleData.filter(item => {
+                const itemDate = item.date;
+                const matchesDate = itemDate >= startDate && itemDate <= endDate;
+                const matchesEmployee = !employeeId || (item.employeeId === parseInt(employeeId, 10));
+                const matchesDepartment = !departmentId || (item.departmentId === parseInt(departmentId, 10));
+                return matchesDate && matchesEmployee && matchesDepartment;
+            });
+            renderWorkScheduleTable(currentWorkScheduleData);
+        }
+
+        function simulateManageWorkScheduleData(employeeId, startDate, endDate) {
+            console.log('Simulating MANAGE work schedule data...');
+            currentManageWorkScheduleData = allSimulatedWorkScheduleData.filter(item => {
+                const itemDate = item.date;
+                const matchesDate = itemDate >= startDate && itemDate <= endDate;
+                const matchesEmployee = item.employeeId === employeeId;
+                return matchesDate && matchesEmployee;
+            });
+            renderManageWorkScheduleTable(currentManageWorkScheduleData);
+        }
+
+        // Simulate employee and department data for dropdowns
+        function simulateEmployeeAndDepartmentData() {
+            allEmployees = [
+                { id: 1, name: 'Nguyễn Văn A', departmentId: 101 },
+                { id: 2, name: 'Trần Thị B', departmentId: 102 },
+                { id: 3, name: 'Lê Văn C', departmentId: 103 },
+                { id: 4, name: 'Phạm Thị D', departmentId: 104 }
+            ];
+            allDepartments = [
+                { id: 101, name: 'Giáo vụ' },
+                { id: 102, name: 'Kế toán' },
+                { id: 103, name: 'Tuyển sinh' },
+                { id: 104, name: 'Hành chính' }
+            ];
+            populateDropdown(employeeFilter, allEmployees, 'Tất cả nhân viên');
+            populateDropdown(manageWSEmployeeFilter, allEmployees, 'Chọn nhân viên');
+            populateDropdown(modalEmployeeSelect, allEmployees, 'Chọn nhân viên'); // For modal
+            populateDropdown(departmentFilter, allDepartments, 'Tất cả bộ phận');
+        }
+
+
+        // Yêu cầu C# cung cấp dữ liệu ban đầu khi trang tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            showFullScreenLoading();
+
+            // Đặt ngày mặc định cho bộ lọc (7 ngày gần nhất) cho tất cả các phần
+            const today = new Date();
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(today.getDate() - 7);
+
+            startDateFilter.value = sevenDaysAgo.toISOString().split('T')[0];
+            endDateFilter.value = today.toISOString().split('T')[0];
+            wsStartDateFilter.value = sevenDaysAgo.toISOString().split('T')[0];
+            wsEndDateFilter.value = today.toISOString().split('T')[0];
+            manageWSStartDateFilter.value = sevenDaysAgo.toISOString().split('T')[0];
+            manageWSEndDateFilter.value = today.toISOString().split('T')[0];
+
+
+            if (window.chrome && window.chrome.webview) {
+                // C# sẽ cung cấp currentEmployeeId và dữ liệu ban đầu khi tải trang
+                window.chrome.webview.postMessage(JSON.stringify({ type: 'requestLoggedInUserName' }));
+                window.chrome.webview.postMessage(JSON.stringify({ type: 'requestEmployeeTimekeepingData', employeeId: null, startDate: startDateFilter.value, endDate: endDateFilter.value }));
+                window.chrome.webview.postMessage(JSON.stringify({ type: 'requestEmployeeListData' })); // Request employee list for dropdowns
+                window.chrome.webview.postMessage(JSON.stringify({ type: 'requestDepartmentListData' })); // Request department list for dropdown
+                window.chrome.webview.postMessage(JSON.stringify({ type: 'requestWorkScheduleData', startDate: wsStartDateFilter.value, endDate: wsEndDateFilter.value, employeeId: null, departmentId: null })); // Initial work schedule data (view all)
+                // No initial request for manageWorkScheduleData, as it depends on employee selection
+
+                // Fallback to hide loading if C# doesn't send data within a reasonable time
+                setTimeout(() => {
+                    if (!initialDataLoadedFromWebView) {
+                        console.warn("No data received from C# WebView2 within timeout. Hiding loading screen.");
+                        hideFullScreenLoading();
+                    }
+                }, 5000); // 5 seconds timeout
+            } else {
+                // Dữ liệu giả lập cho môi trường trình duyệt
+                currentEmployeeId = 1; // ID nhân viên giả lập
+                simulateTimekeepingData(startDateFilter.value, endDateFilter.value);
+                simulateEmployeeAndDepartmentData(); // Simulate employee and department data
+                simulateWorkScheduleData(wsStartDateFilter.value, wsEndDateFilter.value, null, null); // Simulate initial work schedule (view all)
+                // No initial manageWorkScheduleData simulation, as it needs employee selection
+                hideFullScreenLoading();
+            }
+        });
+    </script>
+</body>
+</html>
