@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Tổng Hợp Báo Cáo & Xuất Dữ Liệu - Trung Tâm Ngoại Ngữ 68</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Link Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Load SheetJS for XLSX export -->
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Load jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Load jspdf-autotable for table generation in PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        /* General font and background settings */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Lighter background color */
+            color: #333333; /* Default text color */
+            display: flex;
+            flex-direction: column; /* Ensure main content stacks vertically */
+        }
+
+        /* Main content area */
+        .main-content {
+            flex-grow: 1; /* Allow to expand to fill remaining space */
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff; /* White background for main content */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Gentle shadow */
+            border-radius: 0; /* Remove border-radius to fill the page */
+            width: 100%; /* Ensure full width */
+            max-width: none; /* Remove max-width limit */
+            margin: 0; /* Remove auto margin */
+            overflow-y: auto; /* Allow scrolling if form content overflows */
+        }
+
+        /* Header */
+        .header {
+            background-color: #2d3748;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border-radius: 0; /* Remove border-radius to fill the page */
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px; /* Increased space between logo and title */
+            flex-grow: 1; /* Allow this element to expand to fill space */
+            justify-content: flex-start; /* Keep content left-aligned */
+        }
+
+        .header-logo img {
+            height: 100px;
+            width: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .header-date {
+            font-size: 1rem;
+            color: #a0aec0;
+            white-space: nowrap;
+            margin-right: 20px; /* Space between date and icon */
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-icons {
+            position: relative; /* Add relative positioning for notification dropdown alignment */
+        }
+
+        .header-icons svg {
+            width: 24px;
+            height: 24px;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .header-icons svg:hover {
+            color: #ffffff;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px; /* Adjust as needed */
+            right: -5px; /* Adjust as needed */
+            background-color: #f00; /* Red color */
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+            min-width: 18px; /* Ensure it's round for single digits */
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            display: none; /* Hidden by default, show with JS if count > 0 */
+        }
+
+        /* Notification Dropdown */
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 10px); /* Space from notification icon */
+            right: 0;
+            background-color: #2d3748;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            min-width: 280px; /* A bit wider */
+            max-height: 300px; /* Max height */
+            overflow-y: auto; /* Add scrollbar if too long */
+            display: none;
+            flex-direction: column;
+            padding: 0; /* Changed to 0, inner elements will have padding */
+            margin-top: 5px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+
+        .notification-dropdown.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Notification Dropdown Header */
+        .notification-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #4a5568; /* Slightly lighter background for header */
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #667eea;
+        }
+
+        .notification-dropdown-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .notification-dropdown-header button {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .notification-dropdown-header button:hover {
+            color: #ffffff;
+        }
+
+        /* Notification List */
+        .notification-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notification-list li {
+            padding: 10px 15px;
+            color: #e2e8f0;
+            border-bottom: 1px solid #4a5568;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .notification-list li:last-child {
+            border-bottom: none;
+        }
+
+        .notification-list li:hover {
+            background-color: #4a5568;
+        }
+
+        .notification-list li strong {
+            color: #ffffff;
+        }
+
+        .notification-list li .time {
+            display: block;
+            font-size: 0.75rem;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        .notification-dropdown .no-notifications {
+            padding: 10px 15px;
+            color: #a0aec0;
+            text-align: center;
+            font-style: italic;
+            display: none; /* Hidden by default, shown by JS */
+        }
+
+        /* User info and dropdown */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            cursor: pointer;
+            padding: 5px 0;
+        }
+
+        .user-info img {
+            width: 36px; /* Slightly larger avatar size */
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #4299e1; /* Prominent blue border */
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            text-align: left; /* Left-align user info */
+            white-space: nowrap;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .user-details .user-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .user-details .user-title {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px); /* Space from user-info */
+            right: 0;
+            background-color: #2d3748;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            min-width: 160px; /* A bit wider */
+            display: none;
+            flex-direction: column;
+            padding: 10px 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+
+        .user-dropdown.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .user-dropdown button {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            padding: 10px 15px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            border-radius: 0;
+            font-size: 0.95rem;
+        }
+
+        .user-dropdown button:hover {
+            background-color: #4a5568;
+            color: #ffffff;
+        }
+
+        /* Main content of Dashboard */
+        .dashboard-body {
+            padding: 30px;
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #ffffff; /* White background for body */
+        }
+
+        .dashboard-title {
+            font-size: 2.2rem; /* Larger title */
+            font-weight: 700;
+            color: #2c3e50; /* Darker black color */
+            margin-bottom: 30px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        /* Report and export section */
+        .report-export-section {
+            background-color: #fdfdfd; /* Near-white background */
+            padding: 25px; /* Increased padding */
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08); /* Lighter shadow */
+            border: 1px solid #e0e0e0; /* Lighter border */
+            margin-bottom: 40px; /* Add space between sections */
+        }
+
+        .report-export-section h2 {
+            color: #2c3e50; /* Dark black text color */
+            margin-bottom: 25px; /* Increased margin-bottom */
+            font-size: 1.8em;
+            text-align: center;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 12px; /* Increased padding-bottom */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555555;
+            font-size: 0.95em;
+        }
+
+        .form-group input[type="date"],
+        .form-group select,
+        .form-group input[type="text"] {
+            width: 100%;
+            background-color: #fcfcfc;
+            color: #333333;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1em;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input[type="date"]:focus,
+        .form-group select:focus,
+        .form-group input[type="text"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .action-buttons button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .action-buttons button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .action-buttons button.export-btn {
+            background-color: #007bff;
+        }
+
+        .action-buttons button.export-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .report-output {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            min-height: 200px;
+            overflow-x: auto;
+            font-family: monospace;
+            white-space: pre-wrap; /* Preserve whitespace and wrap text */
+            font-size: 0.9em;
+            color: #343a40;
+        }
+
+        .report-output.hidden {
+            display: none;
+        }
+
+        /* CSS for Full-screen Loading Overlay (similar to account management page) */
+        .full-screen-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10003; /* Increased z-index to be on top of everything */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .full-screen-loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .full-screen-spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid #fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom Message Box Overlay (similar to account management page) */
+        .custom-message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10002; /* Ensure it's on top of other modals */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .custom-message-box-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-message-box-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            color: #333333;
+        }
+
+        .custom-message-box-content p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .custom-message-box-content button {
+            background-color: #4299e1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .custom-message-box-content button:hover {
+            background-color: #3182ce;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .header-date {
+                display: none;
+            }
+            .dashboard-title {
+                font-size: 1.8rem;
+            }
+            .report-export-section h2 {
+                font-size: 1.5em;
+            }
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .action-buttons button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .main-content {
+                padding: 20px;
+                border-radius: 0;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .user-info {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .user-details {
+                display: none;
+            }
+
+            .dashboard-title {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+            }
+
+            .report-export-section {
+                padding: 15px;
+            }
+
+            .report-export-section h2 {
+                font-size: 1.3em;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Full-screen Loading Overlay -->
+    <div id="fullScreenLoadingOverlay" class="full-screen-loading-overlay">
+        <div class="full-screen-spinner"></div>
+    </div>
+
+    <!-- Custom Message Box Overlay for general messages -->
+    <div id="customMessageBoxOverlay" class="custom-message-box-overlay">
+        <div class="custom-message-box-content">
+            <p id="customMessageText"></p>
+            <button id="closeCustomMessageBox">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Box Overlay -->
+    <div id="confirmationBoxOverlay" class="custom-message-box-overlay">
+        <div class="custom-message-box-content">
+            <p id="confirmationMessageText"></p>
+            <div class="flex justify-center gap-4 mt-4">
+                <button id="confirmActionButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">Xác nhận</button>
+                <button id="cancelActionButton" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md transition duration-300">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content area -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="header-logo">
+                    <img src="https://placehold.co/100x100/1a202c/e2e8f0?text=Logo" alt="Trung Tâm Ngoại Ngữ 68">
+                </div>
+                <div class="header-title">Trung Tâm Ngoại Ngữ 68</div>
+            </div>
+            <div class="header-right">
+                <div id="currentDate" class="header-date"></div>
+                <div class="header-icons">
+                    <!-- Notification icon -->
+                    <svg id="notificationIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
+                    <span id="notificationCountBadge" class="notification-badge">3</span>
+                    <!-- Notification Dropdown -->
+                    <div id="notificationDropdown" class="notification-dropdown">
+                        <div class="notification-dropdown-header">
+                            <h3>Thông báo</h3>
+                            <button id="clearNotificationsBtn">Xóa tất cả</button>
+                        </div>
+                        <ul id="notificationList" class="notification-list">
+                            <!-- Notifications will be rendered here -->
+                            <li class="no-notifications">Không có thông báo mới.</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- User info and Dropdown -->
+                <div class="user-info" id="userInfo">
+                    <img src="https://placehold.co/36x36/1a202c/e2e8f0?text=U" alt="User Avatar" />
+                    <div class="user-details">
+                        <span class="user-name" id="employeeName">Đang tải...</span>
+                        <span class="user-title" id="employeeTitle"></span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor: pointer; color: #a0aec0;"><path d="m6 9 6 6 6-6" /></svg>
+                    <div class="user-dropdown" id="userDropdown">
+                        <button id="changePasswordBtn">Đổi Mật Khẩu</button>
+                        <button id="logoutBtn">Đăng Xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content of Dashboard - Report Summary Table -->
+        <div class="dashboard-body">
+            <h1 class="dashboard-title">Bảng Tổng Hợp Báo Cáo & Xuất Dữ Liệu</h1>
+
+            <!-- Unified Report and Export Section -->
+            <div class="report-export-section">
+                <h2>Báo cáo & Xuất dữ liệu</h2>
+                <div class="form-group">
+                    <label for="reportExportDataType">Chọn loại báo cáo / dữ liệu:</label>
+                    <select id="reportExportDataType">
+                        <!-- Options will be filtered based on user permissions -->
+                        <option value="">Chọn loại...</option>
+                        <option value="student_enrollment">Báo cáo Đăng ký Học viên</option>
+                        <option value="finance_summary">Báo cáo Tổng quan Tài chính</option>
+                        <option value="course_popularity">Báo cáo Mức độ Phổ biến Khóa học</option>
+                        <option value="staff_performance">Báo cáo Hiệu suất Nhân sự</option>
+                        <option value="students">Xuất dữ liệu Học viên</option>
+                        <option value="courses">Xuất dữ liệu Khóa học</option>
+                        <option value="transactions">Xuất dữ liệu Giao dịch</option>
+                        <option value="employees">Xuất dữ liệu Nhân sự</option>
+                    </select>
+                </div>
+                <div class="form-group" id="dateRangeGroup">
+                    <label for="startDate">Từ Ngày:</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group" id="endDateGroup">
+                    <label for="endDate">Đến Ngày:</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="form-group" id="exportFormatGroup" style="display: none;">
+                    <label for="exportFormat">Định Dạng Xuất:</label>
+                    <select id="exportFormat">
+                        <option value="xlsx">XLSX</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button id="generateReportBtn" style="display: none;">
+                        <i class="fas fa-chart-line mr-2"></i>Tạo Báo Cáo
+                    </button>
+                    <button id="exportDataBtn" class="export-btn" style="display: none;">
+                        <i class="fas fa-download mr-2"></i>Xuất Dữ Liệu
+                    </button>
+                </div>
+                <div id="reportOutput" class="report-output hidden">
+                    <!-- Report content will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const fullScreenLoadingOverlay = document.getElementById('fullScreenLoadingOverlay');
+        const customMessageBoxOverlay = document.getElementById('customMessageBoxOverlay');
+        const customMessageText = document.getElementById('customMessageText');
+        const closeCustomMessageBox = document.getElementById('closeCustomMessageBox');
+        const confirmationBoxOverlay = document.getElementById('confirmationBoxOverlay');
+        const confirmationMessageText = document.getElementById('confirmationMessageText');
+        const confirmActionButton = document.getElementById('confirmActionButton');
+        const cancelActionButton = document.getElementById('cancelActionButton');
+
+        /**
+         * Shows the full-screen loading overlay.
+         */
+        function showFullScreenLoading() {
+            fullScreenLoadingOverlay.classList.add('active');
+        }
+
+        /**
+         * Hides the full-screen loading overlay.
+         */
+        function hideFullScreenLoading() {
+            fullScreenLoadingOverlay.classList.remove('active');
+        }
+
+        /**
+         * Displays a custom message box.
+         * @param {string} message - The message content.
+         */
+        function showCustomMessage(message) {
+            customMessageText.textContent = message;
+            customMessageBoxOverlay.classList.add('show');
+        }
+
+        // Event listener to close the custom message box
+        closeCustomMessageBox.addEventListener('click', () => {
+            customMessageBoxOverlay.classList.remove('show');
+        });
+
+        /**
+         * Displays a custom confirmation dialog.
+         * @param {string} message - The confirmation message.
+         * @param {function} onConfirm - Callback function when user confirms.
+         */
+        function showConfirmationBox(message, onConfirm) {
+            confirmationMessageText.textContent = message;
+            confirmationBoxOverlay.classList.add('show');
+
+            confirmActionButton.onclick = () => {
+                showFullScreenLoading();
+                confirmationBoxOverlay.classList.remove('show');
+                onConfirm();
+            };
+
+            cancelActionButton.onclick = () => {
+                confirmationBoxOverlay.classList.remove('show');
+            };
+        }
+
+        /**
+         * Updates and displays the current date.
+         */
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('vi-VN', options);
+        }
+        updateCurrentDate();
+        setInterval(updateCurrentDate, 60000); // Update every minute
+
+        // JavaScript to handle user dropdown
+        const userInfo = document.getElementById('userInfo');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userInfo && userDropdown) {
+            userInfo.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent click from propagating to document body
+                userDropdown.classList.toggle('show');
+                // Close notification dropdown if open
+                if (notificationDropdown.classList.contains('show')) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+
+            // Close dropdown if clicked outside
+            document.body.addEventListener('click', (event) => {
+                if (userDropdown.classList.contains('show') && !userInfo.contains(event.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // JavaScript to handle notification dropdown
+        const notificationIcon = document.getElementById('notificationIcon');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationCountBadge = document.getElementById('notificationCountBadge');
+        const notificationList = document.getElementById('notificationList'); // Changed to notificationList
+        const clearNotificationsBtn = document.getElementById('clearNotificationsBtn'); // Changed from markAllReadBtn
+
+        let activeNotifications = []; // Array to store active notifications
+
+        /**
+         * Updates the notification count badge.
+         * @param {number} count - The number of active notifications.
+         */
+        function updateNotificationCount(count) {
+            if (notificationCountBadge) {
+                notificationCountBadge.textContent = count > 99 ? '99+' : count;
+                if (count > 0) {
+                    notificationCountBadge.style.display = 'block';
+                } else {
+                    notificationCountBadge.style.display = 'none';
+                }
+            }
+        }
+
+        /**
+         * Checks if two dates are the same day (ignoring time).
+         * @param {Date} d1 - First date.
+         * @param {Date} d2 - Second date.
+         * @returns {boolean} True if dates are the same day, false otherwise.
+         */
+        function isSameDay(d1, d2) {
+            return d1.getFullYear() === d2.getFullYear() &&
+                   d1.getMonth() === d2.getMonth() &&
+                   d1.getDate() === d2.getDate();
+        }
+
+        /**
+         * Determines the time category for a notification (e.g., 'Mới', 'Hôm nay', 'Hôm qua').
+         * @param {Date} notificationDate - The date of the notification.
+         * @returns {string} The time category.
+         */
+        function getTimeCategory(notificationDate) {
+            const now = new Date();
+            const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            yesterday.setHours(0, 0, 0, 0);
+
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            // Normalize notificationDate to exclude seconds and milliseconds for comparison
+            const normalizedNotificationDate = new Date(notificationDate.getFullYear(), notificationDate.getMonth(), notificationDate.getDate(), notificationDate.getHours(), notificationDate.getMinutes());
+
+
+            if (normalizedNotificationDate > oneHourAgo) {
+                return 'Mới';
+            } else if (isSameDay(normalizedNotificationDate, now)) {
+                return 'Hôm nay';
+            } else if (isSameDay(normalizedNotificationDate, yesterday)) {
+                return 'Hôm qua';
+            } else if (normalizedNotificationDate >= startOfWeek) {
+                return 'Tuần này';
+            } else if (normalizedNotificationDate >= startOfMonth) {
+                return 'Tháng này';
+            }
+            return 'Cũ hơn';
+        }
+
+        /**
+         * Formats a date into a "time ago" string.
+         * @param {Date} date - The date to format.
+         * @returns {string} Formatted time ago string.
+         */
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            let interval = seconds / 31536000;
+            if (interval > 1) {
+                return Math.floor(interval) + " năm trước";
+            }
+            interval = seconds / 2592000;
+            if (interval > 1) {
+                return Math.floor(interval) + " tháng trước";
+            }
+            interval = seconds / 86400;
+            if (interval > 1) {
+                return Math.floor(interval) + " ngày trước";
+            }
+            interval = seconds / 3600;
+            if (interval > 1) {
+                return Math.floor(interval) + " giờ trước";
+            }
+            interval = seconds / 60;
+            if (interval > 1) {
+                return Math.floor(interval) + " phút trước";
+            }
+            return Math.floor(seconds) + " giây trước";
+        }
+
+        /**
+         * Renders the list of notifications in the dropdown.
+         * @param {Array<Object>} notifications - Array of notification objects.
+         */
+        function renderNotifications(notifications) {
+            notificationList.innerHTML = ''; // Clear existing notifications
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<li class="no-notifications">Không có thông báo mới.</li>';
+                clearNotificationsBtn.style.display = 'none';
+                updateNotificationCount(0);
+                return;
+            }
+
+            clearNotificationsBtn.style.display = 'block';
+
+            // Sort notifications by date (newest first)
+            notifications.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+            const groupedNotifications = {
+                'Mới': [],
+                'Hôm nay': [],
+                'Hôm qua': [],
+                'Tuần này': [],
+                'Tháng này': [],
+                'Cũ hơn': []
+            };
+
+            // Group notifications by time category
+            notifications.forEach(notif => {
+                const category = getTimeCategory(notif.date);
+                if (!groupedNotifications[category]) {
+                    groupedNotifications[category] = [];
+                }
+                groupedNotifications[category].push(notif);
+            });
+
+            const categoryOrder = ['Mới', 'Hôm nay', 'Hôm qua', 'Tuần này', 'Tháng này', 'Cũ hơn'];
+
+            // Render notifications grouped by category
+            categoryOrder.forEach(category => {
+                if (groupedNotifications[category].length > 0) {
+                    const categoryHeader = document.createElement('li'); // Changed to li for list
+                    categoryHeader.classList.add('notification-dropdown-header'); // Re-using existing style for category
+                    categoryHeader.innerHTML = `<h3>${category}</h3>`; // Added h3 for consistent styling
+                    notificationList.appendChild(categoryHeader);
+
+                    groupedNotifications[category].forEach(notif => {
+                        const notificationItem = document.createElement('li'); // Changed to li
+                        notificationItem.classList.add('notification-item');
+                        notificationItem.dataset.id = notif.id;
+                        notificationItem.innerHTML = `
+                            <strong>${notif.title}:</strong> ${notif.message}
+                            <span class="time">${formatTimeAgo(notif.date)}</span>
+                        `;
+                        notificationList.appendChild(notificationItem);
+
+                        // Add event listener to mark as read
+                        notificationItem.addEventListener('click', (event) => {
+                            event.stopPropagation();
+                            markNotificationAsRead(notif.id);
+                            // Optionally, close the dropdown after marking one as read
+                            notificationDropdown.classList.remove('show');
+                        });
+                    });
+                }
+            });
+            updateNotificationCount(notifications.length);
+        }
+
+        /**
+         * Marks a specific notification as read and re-renders the list.
+         * @param {string} id - The ID of the notification to mark as read.
+         */
+        function markNotificationAsRead(id) {
+            activeNotifications = activeNotifications.filter(notif => notif.id !== id);
+            renderNotifications(activeNotifications);
+            showCustomMessage(`Thông báo "${id}" đã được đánh dấu là đã đọc.`);
+            notificationDropdown.classList.remove('show');
+        }
+
+        // Initial mock notifications
+        activeNotifications = [
+            { id: 'notif1', title: 'Thông báo 1', message: 'Học viên mới đã đăng ký.', date: new Date(Date.now() - 30 * 60 * 1000) },
+            { id: 'notif2', title: 'Thông báo 2', message: 'Lịch học sắp tới.', date: new Date(Date.now() - 5 * 60 * 60 * 1000) },
+            { id: 'notif3', title: 'Thông báo 3', message: 'Yêu cầu hỗ trợ mới.', date: new Date(Date.now() - 24 * 60 * 60 * 1000 - 2 * 60 * 60 * 1000) },
+        ];
+        renderNotifications(activeNotifications); // Render initial notifications
+
+        // Event listeners for notification dropdown
+        if (notificationIcon && notificationDropdown) {
+            notificationIcon.addEventListener('click', (event) => {
+                event.stopPropagation();
+                notificationDropdown.classList.toggle('show');
+                // Close user dropdown if open
+                if (userDropdown.classList.contains('show')) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+
+            document.body.addEventListener('click', (event) => {
+                if (notificationDropdown.classList.contains('show') && !notificationIcon.contains(event.target) && !notificationDropdown.contains(event.target)) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // Event listener for "Mark All Read" button
+        if (clearNotificationsBtn) {
+            clearNotificationsBtn.addEventListener('click', () => {
+                activeNotifications = []; // Clear all notifications
+                renderNotifications(activeNotifications);
+                notificationDropdown.classList.remove('show');
+                showCustomMessage('Tất cả thông báo đã được đánh dấu là đã đọc.');
+            });
+        }
+
+        // Event listeners for change password and logout buttons (simulated)
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        if (changePasswordBtn) {
+            changePasswordBtn.addEventListener('click', () => {
+                showFullScreenLoading();
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({ type: 'ShowChangePasswordDialog' }));
+                } else {
+                    showCustomMessage('Chức năng đổi mật khẩu chỉ khả dụng trong ứng dụng Windows Forms.');
+                }
+                userDropdown.classList.remove('show');
+                setTimeout(hideFullScreenLoading, 1000);
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({ type: 'Logout' }));
+                } else {
+                    showCustomMessage('Chức năng đăng xuất chỉ khả dụng trong ứng dụng Windows Forms.');
+                }
+                userDropdown.classList.remove('show');
+            });
+        }
+
+        /**
+         * Sets the logged-in user's name.
+         * @param {string} name - The user's name.
+         */
+        function setLoggedInUserName(name) {
+            const userNameSpan = document.getElementById('employeeName');
+            if (userNameSpan) {
+                userNameSpan.textContent = name;
+            }
+        }
+
+        /**
+         * Sets the logged-in user's title.
+         * @param {string} title - The user's title/role.
+         */
+        function setLoggedInUserTitle(title) {
+            const userTitleSpan = document.getElementById('employeeTitle');
+            if (userTitleSpan) {
+                userTitleSpan.textContent = title;
+            }
+        }
+
+        // --- Permission and User Simulation Logic ---
+        // Global data definitions for permissions and roles (for immediate availability)
+        // These would typically come from a backend or shared configuration
+        let allSystemPermissionDefinitions = [
+            { id: 'STUDENT_CREATE_REQUEST', name: 'Tạo Yêu cầu học viên', description: 'Tạo yêu cầu liên quan đến học viên', module: 'STUDENT', type: 'CREATE_REQUEST', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'STUDENT_VIEW', name: 'Xem học viên', description: 'Xem thông tin chi tiết học viên', module: 'STUDENT', type: 'VIEW', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'STUDENT_ACCESS_FUNCTION', name: 'Truy cập chức năng học viên', description: 'Thêm, sửa, xóa thông tin học viên', module: 'STUDENT', type: 'ACCESS_FUNCTION', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'STUDENT_APPRAISAL', name: 'Thẩm định học viên', description: 'Thẩm định các yêu cầu của học viên', module: 'STUDENT', type: 'APPRAISAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'STUDENT_APPROVAL', name: 'Phê duyệt học viên', description: 'Phê duyệt các yêu cầu của học viên', module: 'STUDENT', type: 'APPROVAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'TCODE_STUDENT_INFO_DISPLAY', name: 'Hiển thị thông tin học viên', description: 'Truy cập chức năng hiển thị thông tin học viên qua T-Code', module: 'TCODE', type: 'TCODE_ACCESS', isTCode: true, tCodeValue: 'Z_STUDENT_INFO', targetPageUrl: 'StudentInfo.html' },
+            { id: 'TCODE_CREATE_STUDENT', name: 'Tạo học viên mới', description: 'Truy cập chức năng tạo học viên mới qua T-Code', module: 'TCODE', type: 'TCODE_ACCESS', isTCode: true, tCodeValue: 'Z_CREATE_STUDENT', targetPageUrl: 'StudentAdd.html' },
+            { id: 'STAFF_CREATE_REQUEST', name: 'Tạo Yêu cầu nhân sự', description: 'Tạo yêu cầu liên quan đến nhân sự', module: 'STAFF', type: 'CREATE_REQUEST', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'STAFF_VIEW', name: 'Xem nhân sự', description: 'Xem thông tin chi tiết nhân sự', module: 'STAFF', type: 'VIEW', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'STAFF_ACCESS_FUNCTION', name: 'Truy cập chức năng nhân sự', description: 'Thêm, sửa, xóa thông tin nhân sự', module: 'STAFF', type: 'ACCESS_FUNCTION', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'STAFF_APPRAISAL', name: 'Thẩm định nhân sự', description: 'Thẩm định các yêu cầu của nhân sự', module: 'STAFF', type: 'APPRAISAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'STAFF_APPROVAL', name: 'Phê duyệt nhân sự', description: 'Phê duyệt các yêu cầu của nhân sự', module: 'STAFF', type: 'APPROVAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'TCODE_HR_REPORT', name: 'Báo cáo nhân sự', description: 'Truy cập báo cáo nhân sự qua T-Code', module: 'TCODE', type: 'TCODE_ACCESS', isTCode: true, tCodeValue: 'Z_HR_REPORT', targetPageUrl: 'StaffInfo.html' },
+            { id: 'CLASS_CREATE_REQUEST', name: 'Tạo Yêu cầu lớp học', description: 'Tạo yêu cầu liên quan đến lớp học', module: 'CLASS', type: 'CREATE_REQUEST', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'CLASS_VIEW', name: 'Xem lớp học', description: 'Xem thông tin chi tiết lớp học', module: 'CLASS', type: 'VIEW', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'CLASS_ACCESS_FUNCTION', name: 'Truy cập chức năng lớp học', description: 'Thêm, sửa, xóa thông tin lớp học', module: 'CLASS', type: 'ACCESS_FUNCTION', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'CLASS_APPRAISAL', name: 'Thẩm định lớp học', description: 'Thẩm định các yêu cầu của lớp học', module: 'CLASS', type: 'APPRAISAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'CLASS_APPROVAL', name: 'Phê duyệt lớp học', description: 'Phê duyệt các yêu cầu của lớp học', module: 'CLASS', type: 'APPROVAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'COURSE_CREATE_REQUEST', name: 'Tạo Yêu cầu khóa học', description: 'Tạo yêu cầu liên quan đến khóa học', module: 'COURSE', type: 'CREATE_REQUEST', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'COURSE_VIEW', name: 'Xem khóa học', description: 'Xem thông tin chi tiết khóa học', module: 'COURSE', type: 'VIEW', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'COURSE_ACCESS_FUNCTION', name: 'Truy cập chức năng khóa học', description: 'Thêm, sửa, xóa thông tin khóa học', module: 'COURSE', type: 'ACCESS_FUNCTION', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'COURSE_APPRAISAL', name: 'Thẩm định khóa học', description: 'Thẩm định các yêu cầu của khóa học', module: 'COURSE', type: 'APPRAISAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'COURSE_APPROVAL', name: 'Phê duyệt khóa học', description: 'Phê duyệt các yêu cầu của khóa học', module: 'COURSE', type: 'APPROVAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'DOCUMENT_CREATE_REQUEST', name: 'Tạo Yêu cầu tài liệu', description: 'Tạo yêu cầu liên quan đến tài liệu', module: 'DOCUMENT', type: 'CREATE_REQUEST', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'DOCUMENT_VIEW', name: 'Xem tài liệu', description: 'Xem thông tin chi tiết tài liệu', module: 'DOCUMENT', type: 'VIEW', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'DOCUMENT_ACCESS_FUNCTION', name: 'Truy cập chức năng tài liệu', description: 'Thêm, sửa, xóa thông tin tài liệu', module: 'DOCUMENT', type: 'ACCESS_FUNCTION', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'DOCUMENT_APPRAISAL', name: 'Thẩm định tài liệu', description: 'Thẩm định các yêu cầu của tài liệu', module: 'DOCUMENT', type: 'APPRAISAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'DOCUMENT_APPROVAL', name: 'Phê duyệt tài liệu', description: 'Phê duyệt các yêu cầu của tài liệu', module: 'DOCUMENT', type: 'APPROVAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'FINANCE_VIEW', name: 'Xem tài chính', description: 'Xem các báo cáo và thông tin tài chính', module: 'FINANCE', type: 'VIEW', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'FINANCE_EDIT', name: 'Sửa tài chính', description: 'Sửa các giao dịch và mục tài chính', module: 'FINANCE', type: 'EDIT', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'FINANCE_CREATE_REQUEST', name: 'Tạo Yêu cầu tài chính', description: 'Tạo yêu cầu liên quan đến tài chính', module: 'FINANCE', type: 'CREATE_REQUEST', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'FINANCE_APPRAISAL', name: 'Thẩm định tài chính', description: 'Thẩm định các yêu cầu tài chính', module: 'FINANCE', type: 'APPRAISAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'FINANCE_APPROVAL', name: 'Phê duyệt tài chính', description: 'Phê duyệt các yêu cầu tài chính', module: 'FINANCE', type: 'APPROVAL', isTCode: false, tCodeValue: null, targetPageUrl: null },
+            { id: 'REPORTING_VIEW', name: 'Xem báo cáo', description: 'Xem các báo cáo tổng hợp', module: 'REPORTING', type: 'VIEW', isTCode: false, tCodeValue: null, targetPageUrl: null }
+        ];
+
+        // Define simulated user profiles with their specific permission IDs
+        const mockUserProfiles = {
+            'admin': {
+                name: 'Người dùng Admin',
+                title: 'Quản trị viên',
+                permissions: allSystemPermissionDefinitions.map(p => p.id) // Admin has all permissions
+            },
+            'accountant': {
+                name: 'Người dùng Kế toán',
+                title: 'Kế toán',
+                permissions: [
+                    'FINANCE_VIEW', 'FINANCE_EDIT', 'FINANCE_CREATE_REQUEST', 'FINANCE_APPRAISAL', 'FINANCE_APPROVAL',
+                    'REPORTING_VIEW'
+                ]
+            },
+            'teacher': {
+                name: 'Người dùng Giáo viên',
+                title: 'Giáo viên',
+                permissions: [
+                    'STUDENT_VIEW', 'CLASS_VIEW', 'COURSE_VIEW',
+                    'STUDENT_CREATE_REQUEST', 'CLASS_CREATE_REQUEST', 'COURSE_CREATE_REQUEST'
+                ]
+            },
+            'limited': {
+                name: 'Người dùng Hạn chế',
+                title: 'Nhân viên',
+                permissions: [
+                    'STUDENT_VIEW', 'DOCUMENT_CREATE_REQUEST'
+                ]
+            }
+        };
+
+        let currentUserPermissions = []; // Global array to store current user's *module* permissions
+
+        // Unified mapping for report/export data types to their required modules
+        const unifiedDataTypeModuleMap = {
+            'student_enrollment': 'STUDENT',
+            'finance_summary': 'FINANCE',
+            'course_popularity': 'COURSE',
+            'staff_performance': 'STAFF',
+            'students': 'STUDENT',
+            'courses': 'COURSE',
+            'transactions': 'FINANCE',
+            'employees': 'STAFF'
+        };
+
+        /**
+         * Filters options in a dropdown based on user permissions.
+         * @param {HTMLSelectElement} selectElement - The HTML select element.
+         * @param {Object} mapping - Object mapping option values to modules.
+         */
+        function filterDropdownOptions(selectElement, mapping) {
+            // Store original options once
+            if (!selectElement._originalOptions) {
+                selectElement._originalOptions = Array.from(selectElement.options).map(opt => ({
+                    value: opt.value,
+                    text: opt.textContent
+                }));
+            }
+
+            selectElement.innerHTML = ''; // Clear existing options
+
+            // Add default (placeholder) option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Chọn loại...';
+            selectElement.appendChild(defaultOption);
+
+            // Filter and re-add options based on permissions
+            selectElement._originalOptions.forEach(optionData => {
+                if (optionData.value === '') return; // Skip original default option
+
+                const requiredModule = mapping[optionData.value];
+                // Check if no module is required or if the user has permission to access that module
+                if (!requiredModule || currentUserPermissions.includes(requiredModule)) {
+                    const newOption = document.createElement('option');
+                    newOption.value = optionData.value;
+                    newOption.textContent = optionData.text;
+                    selectElement.appendChild(newOption);
+                }
+            });
+
+            // If no options are available besides the default
+            if (selectElement.options.length === 1 && selectElement.options[0].value === '') {
+                selectElement.options[0].textContent = 'Không có tùy chọn khả dụng';
+                selectElement.disabled = true;
+            } else {
+                selectElement.disabled = false;
+            }
+            selectElement.value = ''; // Reset selected value to default
+        }
+
+        /**
+         * Applies user permissions to report and export dropdowns.
+         */
+        function applyPermissionsToReports() {
+            filterDropdownOptions(reportExportDataTypeSelect, unifiedDataTypeModuleMap);
+        }
+
+        /**
+         * Simulates user login and sets permissions.
+         * In a real environment, this information would come from the backend after login.
+         * @param {string} profileKey - Key of the user profile in mockUserProfiles.
+         */
+        function simulateUserLogin(profileKey) {
+            const profile = mockUserProfiles[profileKey];
+            if (profile) {
+                setLoggedInUserName(profile.name);
+                setLoggedInUserTitle(profile.title);
+
+                // Determine modules the user can access based on their detailed permissions
+                const accessibleModules = new Set();
+                profile.permissions.forEach(permId => {
+                    const permDef = allSystemPermissionDefinitions.find(p => p.id === permId);
+                    if (permDef && permDef.module) {
+                        accessibleModules.add(permDef.module);
+                    }
+                });
+                currentUserPermissions = Array.from(accessibleModules);
+                console.log("User accessible modules:", currentUserPermissions);
+
+                applyPermissionsToReports(); // Apply filtering after user login
+                // showCustomMessage(`Logged in as: ${profile.title}`); // Removed for production
+            } else {
+                showCustomMessage('Hồ sơ người dùng không hợp lệ.');
+            }
+        }
+
+        // --- Unified Report/Export Logic ---
+        const reportExportDataTypeSelect = document.getElementById('reportExportDataType');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const exportDataBtn = document.getElementById('exportDataBtn');
+        const reportOutputDiv = document.getElementById('reportOutput');
+        const exportFormatSelect = document.getElementById('exportFormat');
+        const dateRangeGroup = document.getElementById('dateRangeGroup');
+        const endDateGroup = document.getElementById('endDateGroup');
+        const exportFormatGroup = document.getElementById('exportFormatGroup');
+
+        reportExportDataTypeSelect.addEventListener('change', () => {
+            const selectedType = reportExportDataTypeSelect.value;
+            reportOutputDiv.classList.add('hidden'); // Hide previous report
+
+            // Determine if it's a report or export type
+            const isReport = ['student_enrollment', 'finance_summary', 'course_popularity', 'staff_performance'].includes(selectedType);
+            const isExport = ['students', 'courses', 'transactions', 'employees'].includes(selectedType);
+
+            // Toggle visibility of date range and export format fields
+            dateRangeGroup.style.display = (selectedType !== '') ? 'block' : 'none';
+            endDateGroup.style.display = (selectedType !== '') ? 'block' : 'none';
+            exportFormatGroup.style.display = (selectedType !== '') ? 'block' : 'none'; // Always show format if a type is selected
+
+            // Toggle visibility of action buttons
+            generateReportBtn.style.display = isReport ? 'flex' : 'none';
+            exportDataBtn.style.display = isExport ? 'flex' : 'none';
+        });
+
+        generateReportBtn.addEventListener('click', () => {
+            const reportType = reportExportDataTypeSelect.value;
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+            const format = exportFormatSelect.value; // Get format for report as well
+
+            if (!reportType) {
+                showCustomMessage('Vui lòng chọn loại báo cáo.');
+                return;
+            }
+            if (!startDate || !endDate) {
+                showCustomMessage('Vui lòng chọn cả ngày bắt đầu và ngày kết thúc cho báo cáo.');
+                return;
+            }
+
+            if (new Date(startDate) > new Date(endDate)) {
+                showCustomMessage('Ngày bắt đầu không thể lớn hơn ngày kết thúc.');
+                return;
+            }
+
+            showFullScreenLoading();
+
+            let dataToExport = [];
+            let fileNamePrefix = '';
+
+            switch (reportType) {
+                case 'student_enrollment':
+                    dataToExport = generateStudentEnrollmentReportData(startDate, endDate);
+                    fileNamePrefix = 'student_enrollment_report';
+                    break;
+                case 'finance_summary':
+                    dataToExport = generateFinanceSummaryReportData(startDate, endDate);
+                    fileNamePrefix = 'finance_summary_report';
+                    break;
+                case 'course_popularity':
+                    dataToExport = generateCoursePopularityReportData(startDate, endDate);
+                    fileNamePrefix = 'course_popularity_report';
+                    break;
+                case 'staff_performance':
+                    dataToExport = generateStaffPerformanceReportData(startDate, endDate);
+                    fileNamePrefix = 'staff_performance_report';
+                    break;
+                default:
+                    showCustomMessage('Loại báo cáo không hợp lệ.');
+                    hideFullScreenLoading();
+                    return;
+            }
+
+            // Construct filename with date range
+            const fileName = `${fileNamePrefix}_${startDate}_to_${endDate}`;
+
+            // Call download function with raw data and format
+            downloadFile(dataToExport, fileName, format);
+            hideFullScreenLoading();
+            showCustomMessage(`Báo cáo đã được xuất thành công dưới dạng ${format.toUpperCase()}!`);
+        });
+
+        exportDataBtn.addEventListener('click', () => {
+            const dataType = reportExportDataTypeSelect.value;
+            const format = exportFormatSelect.value;
+
+            if (!dataType) {
+                showCustomMessage('Vui lòng chọn loại dữ liệu xuất.');
+                return;
+            }
+            if (!format) {
+                showCustomMessage('Vui lòng chọn định dạng xuất.');
+                return;
+            }
+
+            showFullScreenLoading();
+
+            let dataToExport = [];
+            let fileName = '';
+
+            switch (dataType) {
+                case 'students':
+                    dataToExport = [
+                        { id: 'SV001', name: 'Nguyễn Văn A', email: 'a@example.com', phone: '0901234567', course: 'Tiếng Anh Giao Tiếp' },
+                        { id: 'SV002', name: 'Trần Thị B', email: 'b@example.com', phone: '0902345678', course: 'IELTS Cấp Tốc' },
+                        { id: 'SV003', name: 'Lê Văn C', email: 'c@example.com', phone: '0903456789', course: 'Tiếng Anh Giao Tiếp' },
+                    ];
+                    fileName = 'students_data';
+                    break;
+                case 'courses':
+                    dataToExport = [
+                        { id: 'C001', name: 'Tiếng Anh Giao Tiếp', duration: '3 tháng', price: 5000000 },
+                        { id: 'C002', name: 'IELTS Cấp Tốc', duration: '2 tháng', price: 8000000 },
+                        { id: 'C003', name: 'TOEFL iBT', duration: '4 tháng', price: 7000000 },
+                    ];
+                    fileName = 'courses_data';
+                    break;
+                case 'transactions':
+                    dataToExport = [
+                        { id: 'T001', type: 'Thu', amount: 5000000, date: '2024-01-20', description: 'Học phí SV001' },
+                        { id: 'T002', type: 'Chi', amount: 1000000, date: '2024-02-01', description: 'Lương giáo viên' },
+                        { id: 'T003', type: 'Thu', amount: 7500000, date: '2024-03-10', description: 'Học phí SV003' },
+                    ];
+                    fileName = 'transactions_data';
+                    break;
+                case 'employees':
+                    dataToExport = [
+                        { id: 'NV001', name: 'Nguyễn Văn Admin', role: 'Quản trị viên', email: 'admin@example.com' },
+                        { id: 'NV002', name: 'Trần Thị B', role: 'Giáo viên', email: 'teacherb@example.com' },
+                        { id: 'NV003', name: 'Lê Văn C', role: 'Tư vấn viên', email: 'consultantc@example.com' },
+                    ];
+                    fileName = 'employees_data';
+                    break;
+                default:
+                    showCustomMessage('Loại dữ liệu xuất không hợp lệ.');
+                    hideFullScreenLoading();
+                    return;
+            }
+
+            // Call download function with raw data and format
+            downloadFile(dataToExport, fileName, format);
+            hideFullScreenLoading();
+            showCustomMessage(`Dữ liệu đã được xuất thành công dưới dạng ${format.toUpperCase()}!`);
+        });
+
+        // Hide report output (no longer used for display) when inputs change
+        reportExportDataTypeSelect.addEventListener('change', () => reportOutputDiv.classList.add('hidden'));
+        startDateInput.addEventListener('change', () => reportOutputDiv.classList.add('hidden'));
+        endDateInput.addEventListener('change', () => reportOutputDiv.classList.add('hidden'));
+        exportFormatSelect.addEventListener('change', () => reportOutputDiv.classList.add('hidden'));
+
+
+        /**
+         * Generates student enrollment report data (raw array of objects).
+         * @param {string} start - Start date in YYYY-MM-DD format.
+         * @param {string} end - End date in YYYY-MM-DD format.
+         * @returns {Array<Object>} Filtered student enrollment data.
+         */
+        function generateStudentEnrollmentReportData(start, end) {
+            const students = [
+                { id: 'SV001', name: 'Nguyễn Văn A', course: 'Tiếng Anh Giao Tiếp', date: '2023-01-10' },
+                { id: 'SV002', name: 'Trần Thị B', course: 'IELTS Cấp Tốc', date: '2023-02-15' },
+                { id: 'SV003', name: 'Lê Văn C', course: 'Tiếng Anh Giao Tiếp', date: '2023-03-20' },
+                { id: 'SV004', name: 'Phạm Thị D', course: 'TOEFL iBT', date: '2023-04-01' },
+                { id: 'SV005', name: 'Hoàng Văn E', course: 'IELTS Cấp Tốc', date: '2023-05-05' },
+                { id: 'SV006', name: 'Vũ Thị F', course: 'Tiếng Anh Giao Tiếp', date: '2024-01-01' },
+                { id: 'SV007', name: 'Đặng Văn G', course: 'IELTS Cấp Tốc', date: '2024-02-10' },
+                { id: 'SV008', name: 'Bùi Thị H', course: 'TOEFL iBT', date: '2024-03-15' },
+                { id: 'SV009', name: 'Cao Văn I', course: 'Tiếng Anh Giao Tiếp', date: '2024-04-20' },
+                { id: 'SV010', name: 'Dương Thị K', course: 'IELTS Cấp Tốc', date: '2024-05-25' },
+            ];
+
+            const filteredStudents = students.filter(s => {
+                const enrollmentDate = new Date(s.date);
+                return enrollmentDate >= new Date(start) && enrollmentDate <= new Date(end);
+            });
+            return filteredStudents;
+        }
+
+        /**
+         * Generates finance summary report data (raw array of objects).
+         * @param {string} start - Start date in YYYY-MM-DD format.
+         * @param {string} end - End date in YYYY-MM-DD format.
+         * @returns {Array<Object>} Filtered transaction data.
+         */
+        function generateFinanceSummaryReportData(start, end) {
+            const transactions = [
+                { id: 'T001', type: 'Thu', amount: 5000000, date: '2023-01-20', description: 'Học phí SV001' },
+                { id: 'T002', type: 'Chi', amount: 1000000, date: '2023-02-01', description: 'Lương giáo viên' },
+                { id: 'T003', type: 'Thu', amount: 7500000, date: '2023-03-10', description: 'Học phí SV003' },
+                { id: 'T004', type: 'Chi', amount: 500000, date: '2023-04-05', description: 'Chi phí điện nước' },
+                { id: 'T005', type: 'Thu', amount: 6000000, date: '2024-01-15', description: 'Học phí SV006' },
+                { id: 'T006', type: 'Thu', amount: 8000000, date: '2024-02-20', description: 'Học phí SV007' },
+                { id: 'T007', type: 'Chi', amount: 1200000, date: '2024-03-01', description: 'Lương giáo viên' },
+                { id: 'T008', type: 'Thu', amount: 4500000, date: '2024-04-25', description: 'Học phí SV009' },
+            ];
+
+            const filteredTransactions = transactions.filter(t => {
+                const transactionDate = new Date(t.date);
+                return transactionDate >= new Date(start) && transactionDate <= new Date(end);
+            });
+            return filteredTransactions;
+        }
+
+        /**
+         * Generates course popularity report data (raw array of objects).
+         * @param {string} start - Start date in YYYY-MM-DD format.
+         * @param {string} end - End date in YYYY-MM-DD format.
+         * @returns {Array<Object>} Course popularity data (array of {course: string, 'Số lượng đăng ký': number}).
+         */
+        function generateCoursePopularityReportData(start, end) {
+            const enrollments = [
+                { course: 'Tiếng Anh Giao Tiếp', date: '2023-01-10' },
+                { course: 'IELTS Cấp Tốc', date: '2023-02-15' },
+                { course: 'Tiếng Anh Giao Tiếp', date: '2023-03-20' },
+                { course: 'TOEFL iBT', date: '2023-04-01' },
+                { course: 'IELTS Cấp Tốc', date: '2023-05-05' },
+                { course: 'Tiếng Anh Giao Tiếp', date: '2024-01-01' },
+                { course: 'IELTS Cấp Tốc', date: '2024-02-10' },
+                { course: 'TOEFL iBT', date: '2024-03-15' },
+                { course: 'Tiếng Anh Giao Tiếp', date: '2024-04-20' },
+                { course: 'IELTS Cấp Tốc', date: '2024-05-25' },
+            ];
+
+            const filteredEnrollments = enrollments.filter(e => {
+                const enrollmentDate = new Date(e.date);
+                return enrollmentDate >= new Date(start) && enrollmentDate <= new Date(end);
+            });
+
+            const courseCounts = {};
+            filteredEnrollments.forEach(e => {
+                courseCounts[e.course] = (courseCounts[e.course] || 0) + 1;
+            });
+
+            // Convert to array of objects for consistent export handling
+            return Object.entries(courseCounts).map(([course, count]) => ({ course, 'Số lượng đăng ký': count }));
+        }
+
+        /**
+         * Generates staff performance report data (raw array of objects).
+         * @param {string} start - Start date in YYYY-MM-DD format.
+         * @param {string} end - End date in YYYY-MM-DD format.
+         * @returns {Array<Object>} Filtered staff activity data.
+         */
+        function generateStaffPerformanceReportData(start, end) {
+            const staffActivities = [
+                { name: 'Nguyễn Thị A', role: 'Tư vấn viên', activities: 12, date: '2023-01-15' },
+                { name: 'Trần Văn B', role: 'Giáo viên', activities: 20, date: '2023-02-10' },
+                { name: 'Lê Thị C', role: 'Tư vấn viên', activities: 15, date: '2023-03-01' },
+                { name: 'Phạm Văn D', role: 'Giáo viên', activities: 25, date: '2024-01-20' },
+                { name: 'Hoàng Thị E', role: 'Tư vấn viên', activities: 18, date: '2024-02-25' },
+                { name: 'Vũ Văn F', role: 'Giáo viên', activities: 30, date: '2024-03-10' },
+            ];
+
+            const filteredActivities = staffActivities.filter(a => {
+                const activityDate = new Date(a.date);
+                return activityDate >= new Date(start) && activityDate <= new Date(end);
+            });
+            return filteredActivities;
+        }
+
+        /**
+         * Converts an array of objects to an XLSX file using SheetJS.
+         * Returns a Blob.
+         * @param {Array<Object>} data - The data to convert.
+         * @returns {Blob | null} A Blob object containing the XLSX data, or null if an error occurs.
+         */
+        function convertToXLSXBlob(data) {
+            if (typeof XLSX === 'undefined') {
+                showCustomMessage('Thư viện SheetJS (XLSX) chưa được tải. Vui lòng kiểm tra kết nối internet.');
+                return null;
+            }
+
+            // If no data, create a sheet with just headers (if any)
+            const ws = data.length > 0 ? XLSX.utils.json_to_sheet(data) : XLSX.utils.aoa_to_sheet([Object.keys(data[0] || {})]);
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+            // Write the workbook to a binary string and convert to Blob
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            return new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        }
+
+        /**
+         * Converts an array of objects to a PDF file using jsPDF and jspdf-autotable.
+         * Returns a Blob.
+         * @param {Array<Object>} data - The data to convert.
+         * @param {string} title - The title for the PDF document.
+         * @returns {Blob | null} A Blob object containing the PDF data, or null if an error occurs.
+         */
+        function convertToPDFBlob(data, title) {
+            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+                showCustomMessage('Thư viện jsPDF chưa được tải. Vui lòng kiểm tra kết nối internet.');
+                return null;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const headers = data.length > 0 ? Object.keys(data[0]) : [];
+            const body = data.map(row => Object.values(row));
+
+            doc.setFontSize(18);
+            doc.text(`Báo cáo: ${title}`, 14, 22);
+
+            doc.autoTable({
+                head: [headers],
+                body: body,
+                startY: 30,
+                theme: 'grid',
+                styles: {
+                    font: 'Inter',
+                    fontSize: 10,
+                    cellPadding: 3,
+                    valign: 'middle',
+                    halign: 'left'
+                },
+                headStyles: {
+                    fillColor: [45, 55, 72],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold'
+                },
+                alternateRowStyles: {
+                    fillColor: [240, 242, 245]
+                },
+                didDrawPage: function (data) {
+                    let str = "Trang " + doc.internal.getNumberOfPages();
+                    doc.setFontSize(10);
+                    doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                }
+            });
+
+            return doc.output('blob'); // Return the PDF as a Blob
+        }
+
+        /**
+         * Triggers a file download using a temporary anchor element.
+         * @param {Blob} blob - The Blob object to download.
+         * @param {string} fileName - The name of the file including extension.
+         */
+        function triggerDownload(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName; // Set the download filename
+            document.body.appendChild(a);
+            a.click(); // Programmatically click the link
+            document.body.removeChild(a); // Clean up
+            URL.revokeObjectURL(url); // Release the object URL
+        }
+
+        /**
+         * Downloads a file based on the provided data, file name, and format.
+         * This function now handles the content generation based on format.
+         * @param {Array<Object>} data - The raw data to export.
+         * @param {string} fileName - The base name of the file (without extension).
+         * @param {string} format - The desired export format ('xlsx' or 'pdf').
+         */
+        function downloadFile(data, fileName, format) {
+            let blob = null;
+            let finalFileName = fileName;
+
+            try {
+                if (format === 'xlsx') {
+                    blob = convertToXLSXBlob(data);
+                    finalFileName += '.xlsx';
+                } else if (format === 'pdf') {
+                    blob = convertToPDFBlob(data, fileName.replace(/_/g, ' ')); // Pass a more readable title for PDF
+                    finalFileName += '.pdf';
+                } else {
+                    showCustomMessage('Định dạng xuất không hợp lệ.');
+                    return;
+                }
+
+                if (blob) {
+                    triggerDownload(blob, finalFileName);
+                } else {
+                    showCustomMessage('Không thể tạo tệp. Vui lòng thử lại.');
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải xuống tệp:', error);
+                showCustomMessage(`Đã xảy ra lỗi khi tạo tệp ${format.toUpperCase()}. Vui lòng kiểm tra console để biết chi tiết.`);
+            }
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default dates to current month
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            startDateInput.value = firstDayOfMonth.toISOString().split('T')[0];
+            endDateInput.value = today.toISOString().split('T')[0];
+
+            // Initial login as Admin (or whatever default role is desired for a real app)
+            // In a real application, this would be determined by the actual logged-in user's permissions
+            simulateUserLogin('admin');
+
+            // Trigger initial change to set correct visibility for fields and buttons
+            reportExportDataTypeSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
+</body>
+</html>
